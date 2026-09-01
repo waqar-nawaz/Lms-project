@@ -2,6 +2,13 @@ import bcrypt from 'bcryptjs';
 import { pool, query } from './db/pool';
 
 async function seed() {
+  const existing = await query(`SELECT id FROM organizations WHERE code = 'DEMO'`);
+  if (existing.rows.length) {
+    console.log('Demo data already seeded — skipping.');
+    await pool.end();
+    return;
+  }
+
   const orgRes = await query(
     `INSERT INTO organizations (name, code) VALUES ('Demo Diagnostics Lab', 'DEMO') RETURNING id`
   );
