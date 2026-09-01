@@ -1,0 +1,18 @@
+<div class="verify-wrap">
+  <div class="verify-card">
+    <ng-container *ngIf="!loading">
+      <ng-container *ngIf="result?.verified; else notVerified">
+        <div class="icon ok">&#10003;</div>
+        <h2>Report Verified</h2>
+        <p class="report-number">{{ result.report_number }}</p>
+        <div class="row"><span>Status</span><span>{{ result.status }}</span></div>
+        <div class="row"><span>Finalized</span><span>{{ result.finalized_at | date:'medium' }}</span></div>
+      </ng-container>
+      <ng-template #notVerified>
+        <div class="icon fail">&#10007;</div>
+        <h2>Not Verified</h2>
+        <p>This report could not be verified. It may be invalid or the link is incorrect.</p>
+      </ng-template>
+    </ng-container>
+  </div>
+</div>

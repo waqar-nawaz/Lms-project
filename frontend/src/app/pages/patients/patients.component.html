@@ -1,0 +1,80 @@
+<h1 class="page-title">Patients</h1>
+
+<div class="toolbar">
+  <input placeholder="Search by name, MRN, phone, ID…" [(ngModel)]="query" (keyup.enter)="load()" style="min-width:260px" />
+  <button class="btn btn-outline btn-sm" (click)="load()">Search</button>
+  <button class="btn" (click)="openForm()">+ New Patient</button>
+</div>
+
+<div class="card" *ngIf="showForm">
+  <div class="field-row">
+    <div>
+      <label>MRN</label>
+      <input [(ngModel)]="form.mrn" name="mrn" />
+    </div>
+    <div>
+      <label>First name</label>
+      <input [(ngModel)]="form.first_name" name="first_name" />
+    </div>
+    <div>
+      <label>Last name</label>
+      <input [(ngModel)]="form.last_name" name="last_name" />
+    </div>
+  </div>
+  <div class="field-row" style="margin-top:0.75rem">
+    <div>
+      <label>Date of birth</label>
+      <input type="date" [(ngModel)]="form.dob" name="dob" />
+    </div>
+    <div>
+      <label>Gender</label>
+      <select [(ngModel)]="form.gender" name="gender">
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div>
+      <label>Phone</label>
+      <input [(ngModel)]="form.phone" name="phone" />
+    </div>
+    <div>
+      <label>Identity number</label>
+      <input [(ngModel)]="form.identity_number" name="identity_number" />
+    </div>
+  </div>
+
+  <div class="error" *ngIf="error" style="color:#c0392b;margin-top:0.75rem;font-size:0.85rem">{{ error }}</div>
+
+  <div class="card" *ngIf="duplicates.length" style="background:#fdf1d6;margin-top:1rem">
+    <strong>Possible duplicate patient(s) found:</strong>
+    <ul>
+      <li *ngFor="let d of duplicates">{{ d.mrn }} — {{ d.first_name }} {{ d.last_name }} ({{ d.phone }})</li>
+    </ul>
+    <button class="btn btn-sm" (click)="confirmDespiteDuplicates()">Keep new patient anyway</button>
+  </div>
+
+  <div class="toolbar" style="margin-top:1rem">
+    <button class="btn" (click)="submit()" [disabled]="saving">{{ saving ? 'Saving…' : 'Save Patient' }}</button>
+    <button class="btn btn-outline" (click)="showForm = false">Cancel</button>
+  </div>
+</div>
+
+<div class="card">
+  <table class="data-table">
+    <thead>
+      <tr><th>MRN</th><th>Name</th><th>DOB</th><th>Gender</th><th>Phone</th><th></th></tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let p of patients">
+        <td>{{ p.mrn }}</td>
+        <td>{{ p.first_name }} {{ p.last_name }}</td>
+        <td>{{ p.dob ? (p.dob | date:'mediumDate') : '-' }}</td>
+        <td>{{ p.gender || '-' }}</td>
+        <td>{{ p.phone || '-' }}</td>
+        <td><button class="btn btn-sm" (click)="startOrder(p)">New Order</button></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="empty-state" *ngIf="!patients.length">No patients found.</div>
+</div>

@@ -1,0 +1,33 @@
+<h1 class="page-title">Sample Worklist</h1>
+
+<div class="toast" *ngIf="message" style="background:#dcf3e5;color:#1b7a41;padding:0.6rem 1rem;border-radius:6px;margin-bottom:1rem;font-size:0.85rem">{{ message }}</div>
+
+<div class="toolbar">
+  <select [(ngModel)]="statusFilter" (change)="load()">
+    <option value="">All statuses</option>
+    <option value="awaiting_collection">Awaiting Collection</option>
+    <option value="collected">Collected (awaiting accession)</option>
+    <option value="accepted">Accepted</option>
+    <option value="rejected">Rejected</option>
+  </select>
+</div>
+
+<div class="card">
+  <table class="data-table">
+    <thead><tr><th>Barcode</th><th>Patient</th><th>Order #</th><th>Type</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      <tr *ngFor="let s of specimens">
+        <td><code>{{ s.barcode }}</code></td>
+        <td>{{ s.first_name }} {{ s.last_name }} <span style="color:#93a2b3">({{ s.mrn }})</span></td>
+        <td><a [routerLink]="['/orders', s.order_id]">{{ s.order_number }}</a></td>
+        <td>{{ s.specimen_type }}</td>
+        <td><span class="badge" [class]="'status-' + s.status">{{ s.status.replace('_',' ') }}</span></td>
+        <td>
+          <button class="btn btn-sm" *ngIf="s.status === 'awaiting_collection'" (click)="collect(s.id)">Collect</button>
+          <button class="btn btn-sm" *ngIf="s.status === 'collected'" (click)="receive(s.id)">Accession</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="empty-state" *ngIf="!specimens.length">No specimens in this state.</div>
+</div>

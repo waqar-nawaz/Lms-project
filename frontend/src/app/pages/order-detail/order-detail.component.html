@@ -1,0 +1,134 @@
+<ng-container *ngIf="order">
+  <h1 class="page-title">Order {{ order.order_number }}</h1>
+
+  <div class="toast success" *ngIf="message">{{ message }}</div>
+  <div class="toast error" *ngIf="error">{{ error }}</div>
+
+  <div class="card">
+    <div class="field-row">
+      <div><label>Patient</label><div>{{ order.first_name }} {{ order.last_name }} ({{ order.mrn }})</div></div>
+      <div><label>Doctor</label><div>{{ order.doctor_name || '-' }}</div></div>
+      <div><label>Priority</label><div class="badge">{{ order.priority }}</div></div>
+      <div><label>Status</label><div><span class="badge" [class]="'status-' + order.status">{{ order.status.replace('_',' ') }}</span></div></div>
+      <div><label>Total / Due</label><div>{{ order.total | number }} / {{ order.due | number }} PKR</div></div>
+    </div>
+  </div>
+
+  <!-- SPECIMENS -->
+  <div class="card">
+    <div class="toolbar" style="justify-content:space-between">
+      <h3 style="margin:0">Specimens</h3>
+      <button class="btn btn-sm" *ngIf="!order.specimens?.length" (click)="generateSpecimens()">Generate Specimens</button>
+    </div>
+    <table class="data-table" *ngIf="order.specimens?.length">
+      <thead><tr><th>Barcode</th><th>Type</th><th>Status</th><th>Collected</th><th>Received</th><th></th></tr></thead>
+      <tbody>
+        <tr *ngFor="let s of order.specimens">
+          <td><code>{{ s.barcode }}</code></td>
+          <td>{{ s.specimen_type }}</td>
+          <td><span class="badge" [class]="'status-' + s.status">{{ s.status.replace('_',' ') }}</span>
+            <span *ngIf="s.rejection_reason" style="color:#b12f21;font-size:0.75rem"> ({{ s.rejection_reason.replace('_',' ') }})</span>
+          </td>
+          <td>{{ s.collected_at ? (s.collected_at | date:'short') : '-' }}</td>
+          <td>{{ s.received_at ? (s.received_at | date:'short') : '-' }}</td>
+          <td style="white-space:nowrap">
+            <button class="btn btn-sm" *ngIf="s.status === 'awaiting_collection'" (click)="collect(s.id)">Collect</button>
+            <button class="btn btn-sm" *ngIf="s.status === 'collected'" (click)="receive(s.id)">Accession</button>
+            <button class="btn btn-sm btn-danger" *ngIf="s.status === 'collected'" (click)="openReject(s.id)">Reject</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="empty-state" *ngIf="!order.specimens?.length">No specimens generated yet.</div>
+
+    <div class="card" *ngIf="rejectReasonFor" style="background:#fbe0dd;margin-top:1rem">
+      <label>Rejection reason</label>
+      <select [(ngModel)]="rejectReason">
+        <option *ngFor="let r of rejectionReasons" [value]="r">{{ r.replace('_',' ') }}</option>
+      </select>
+      <div class="toolbar" style="margin-top:0.5rem">
+        <button class="btn btn-sm btn-danger" (click)="confirmReject()">Confirm Reject</button>
+        <button class="btn btn-sm btn-outline" (click)="rejectReasonFor = null">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="card" *ngIf="results.length">
+    <h3 style="margin-top:0">Results</h3>
+    <table class="data-table">
+      <thead><tr><th>Test</th><th>Parameter</th><th>Value</th><th>Unit</th><th>Flag</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        <tr *ngFor="let r of results">
+          <td>{{ r.test_name }}</td>
+          <td>{{ r.parameter_name }}</td>
+          <td>
+            <input style="width:100px"
+              [ngModel]="resultDrafts[r.parameter_id] || r.value"
+              (ngModelChange)="resultDrafts[r.parameter_id] = $event"
+              [disabled]="r.result_status === 'verified'" />
+          </td>
+          <td>{{ r.unit || '-' }}</td>
+          <td><span class="badge" *ngIf="r.flag" [class]="'status-' + r.flag">{{ r.flag.replace('_',' ') }}</span></td>
+          <td><span class="badge" *ngIf="r.result_status" [class]="'status-' + r.result_status">{{ r.result_status }}</span></td>
+          <td style="white-space:nowrap">
+            <button class="btn btn-sm" (click)="saveResult(r)" [disabled]="r.result_status === 'verified'">Save</button>
+            <button class="btn btn-sm btn-outline" *ngIf="r.result_id && r.result_status !== 'verified'" (click)="verify(r.result_id!)">Verify</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- BILLING -->
+  <div class="card">
+    <h3 style="margin-top:0">Billing</h3>
+    <div *ngIf="!invoice">
+      <button class="btn btn-sm" (click)="createInvoice()">Create Invoice</button>
+    </div>
+    <div *ngIf="invoice">
+      <div class="field-row">
+        <div><label>Invoice #</label><div>{{ invoice.invoice_number }}</div></div>
+        <div><label>Total</label><div>{{ invoice.total | number }}</div></div>
+        <div><label>Status</label><div><span class="badge" [class]="'status-' + invoice.status">{{ invoice.status.replace('_',' ') }}</span></div></div>
+      </div>
+      <table class="data-table" *ngIf="invoice.payments?.length" style="margin-top:0.75rem">
+        <thead><tr><th>Amount</th><th>Method</th><th>Date</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let p of invoice.payments"><td>{{ p.amount | number }}</td><td>{{ p.method }}</td><td>{{ p.paid_at | date:'short' }}</td></tr>
+        </tbody>
+      </table>
+      <div class="toolbar" style="margin-top:0.75rem" *ngIf="invoice.status !== 'paid'">
+        <input type="number" placeholder="Amount" [(ngModel)]="paymentAmount" style="width:120px" />
+        <select [(ngModel)]="paymentMethod">
+          <option value="cash">Cash</option>
+          <option value="card">Card</option>
+          <option value="bank_transfer">Bank Transfer</option>
+          <option value="mobile_wallet">Mobile Wallet</option>
+          <option value="cheque">Cheque</option>
+        </select>
+        <button class="btn btn-sm" (click)="recordPayment()">Record Payment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REPORTS -->
+  <div class="card">
+    <div class="toolbar" style="justify-content:space-between">
+      <h3 style="margin:0">Reports</h3>
+      <button class="btn btn-sm" (click)="generateReport()">Generate Report</button>
+    </div>
+    <table class="data-table" *ngIf="reports.length">
+      <thead><tr><th>Report #</th><th>Version</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        <tr *ngFor="let r of reports">
+          <td>{{ r.report_number }}</td>
+          <td>{{ r.version }}</td>
+          <td><span class="badge" [class]="'status-' + r.status">{{ r.status }}</span></td>
+          <td><button class="btn btn-sm btn-outline" (click)="download(r.id, r.report_number)">Download PDF</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="empty-state" *ngIf="!reports.length">No reports generated yet — verify all results first.</div>
+  </div>
+</ng-container>

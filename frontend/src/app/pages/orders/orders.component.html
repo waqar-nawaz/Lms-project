@@ -1,0 +1,82 @@
+<h1 class="page-title">Orders</h1>
+
+<div class="card" *ngIf="showForm">
+  <h3 style="margin-top:0">New Order — {{ patient?.first_name }} {{ patient?.last_name }} ({{ patient?.mrn }})</h3>
+
+  <div class="field-row">
+    <div>
+      <label>Referring Doctor</label>
+      <select [(ngModel)]="doctorId">
+        <option value="">— None —</option>
+        <option *ngFor="let d of doctors" [value]="d.id">{{ d.name }}</option>
+      </select>
+    </div>
+    <div>
+      <label>Priority</label>
+      <select [(ngModel)]="priority">
+        <option value="routine">Routine</option>
+        <option value="urgent">Urgent</option>
+        <option value="stat">STAT</option>
+      </select>
+    </div>
+    <div>
+      <label>Discount (PKR)</label>
+      <input type="number" [(ngModel)]="discount" min="0" />
+    </div>
+  </div>
+
+  <h4>Select tests</h4>
+  <table class="data-table">
+    <thead><tr><th></th><th>Test</th><th>Specimen</th><th>Price</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let t of tests">
+        <td><input type="checkbox" [checked]="selectedTestIds.has(t.id)" (change)="toggleTest(t.id)" /></td>
+        <td>{{ t.name }} <span style="color:#93a2b3">({{ t.short_name || t.code }})</span></td>
+        <td>{{ t.specimen_type }}</td>
+        <td>{{ t.price | number }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:0.75rem;font-size:0.95rem"><strong>Subtotal: {{ subtotal | number }} PKR</strong></div>
+
+  <div class="error" *ngIf="error" style="color:#c0392b;margin-top:0.5rem;font-size:0.85rem">{{ error }}</div>
+
+  <div class="toolbar" style="margin-top:1rem">
+    <button class="btn" (click)="submit()" [disabled]="saving || !selectedTestIds.size">
+      {{ saving ? 'Creating…' : 'Create Order' }}
+    </button>
+    <button class="btn btn-outline" (click)="cancelForm()">Cancel</button>
+  </div>
+</div>
+
+<div class="toolbar">
+  <select [(ngModel)]="statusFilter" (change)="load()">
+    <option value="">All statuses</option>
+    <option value="registered">Registered</option>
+    <option value="awaiting_sample">Awaiting Sample</option>
+    <option value="sample_collected">Sample Collected</option>
+    <option value="in_processing">In Processing</option>
+    <option value="awaiting_verification">Awaiting Verification</option>
+    <option value="completed">Completed</option>
+    <option value="paid">Paid</option>
+  </select>
+</div>
+
+<div class="card">
+  <table class="data-table">
+    <thead><tr><th>Order #</th><th>Patient</th><th>Doctor</th><th>Priority</th><th>Status</th><th>Total</th><th>Due</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let o of orders" [routerLink]="['/orders', o.id]" style="cursor:pointer">
+        <td>{{ o.order_number }}</td>
+        <td>{{ o.first_name }} {{ o.last_name }} <span style="color:#93a2b3">({{ o.mrn }})</span></td>
+        <td>{{ o.doctor_name || '-' }}</td>
+        <td class="badge">{{ o.priority }}</td>
+        <td><span class="badge" [class]="'status-' + o.status">{{ o.status.replace('_',' ') }}</span></td>
+        <td>{{ o.total | number }}</td>
+        <td>{{ o.due | number }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="empty-state" *ngIf="!orders.length">No orders yet.</div>
+</div>

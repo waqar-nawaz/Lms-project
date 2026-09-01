@@ -1,0 +1,36 @@
+.verify-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f4f6f8;
+}
+.verify-card {
+  background: #fff;
+  padding: 2.5rem;
+  border-radius: 12px;
+  width: 340px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(15, 41, 66, 0.1);
+}
+.icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  font-size: 1.6rem;
+  color: #fff;
+}
+.icon.ok { background: #1b7a41; }
+.icon.fail { background: #b12f21; }
+.report-number { color: #6b7c8f; font-size: 0.85rem; }
+.row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 0;
+  border-top: 1px solid #eef1f4;
+  font-size: 0.85rem;
+}

@@ -1,0 +1,21 @@
+<div class="login-wrap">
+  <form class="login-card" (ngSubmit)="submit()">
+    <h1>LabTrack LMS</h1>
+    <p class="subtitle">Laboratory Management System</p>
+
+    <label>Email</label>
+    <input type="email" name="email" [(ngModel)]="email" required autofocus />
+
+    <label>Password</label>
+    <input type="password" name="password" [(ngModel)]="password" required />
+
+    <div class="error" *ngIf="error">{{ error }}</div>
+
+    <button type="submit" [disabled]="loading">{{ loading ? 'Signing in…' : 'Sign in' }}</button>
+
+    <div class="hint">
+      Demo accounts (password: <code>password123</code>): admin, manager, reception,
+      phlebotomist, tech, pathologist, accountant &#64;demo.lab
+    </div>
+  </form>
+</div>

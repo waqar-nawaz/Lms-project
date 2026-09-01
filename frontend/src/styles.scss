@@ -1,0 +1,146 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #1c2733;
+}
+
+h1.page-title {
+  font-size: 1.4rem;
+  margin: 0 0 1.25rem;
+  color: #0f2942;
+}
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(15, 41, 66, 0.08);
+  margin-bottom: 1.25rem;
+}
+
+.toolbar {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+input, select, textarea {
+  padding: 0.5rem 0.65rem;
+  border: 1px solid #d5dbe2;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #145374;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  background: #145374;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+.btn:hover { background: #0f2942; }
+.btn:disabled { opacity: 0.5; cursor: default; }
+
+.btn-outline {
+  background: #fff;
+  color: #145374;
+  border: 1px solid #145374;
+}
+.btn-outline:hover { background: #eaf1f6; }
+
+.btn-danger {
+  background: #c0392b;
+  color: #fff;
+  border: none;
+}
+.btn-danger:hover { background: #962d22; }
+
+.btn-sm {
+  padding: 0.3rem 0.65rem;
+  font-size: 0.78rem;
+  border-radius: 5px;
+}
+
+table.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+table.data-table th {
+  text-align: left;
+  color: #6b7c8f;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 2px solid #eef1f4;
+}
+table.data-table td {
+  padding: 0.6rem;
+  border-bottom: 1px solid #eef1f4;
+}
+table.data-table tr:hover td {
+  background: #f7f9fb;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  background: #e6ecf1;
+  color: #445;
+}
+.badge.status-completed, .badge.status-paid, .badge.status-verified,
+.badge.status-accepted, .badge.status-normal { background: #dcf3e5; color: #1b7a41; }
+.badge.status-critical_low, .badge.status-critical_high, .badge.status-rejected,
+.badge.status-cancelled { background: #fbe0dd; color: #b12f21; }
+.badge.status-low, .badge.status-high, .badge.status-awaiting_verification,
+.badge.status-partially_paid, .badge.status-pending { background: #fdf1d6; color: #9a6c0a; }
+.badge.status-draft, .badge.status-registered, .badge.status-awaiting_collection,
+.badge.status-awaiting_sample { background: #e3ecf5; color: #26507a; }
+
+.empty-state {
+  color: #93a2b3;
+  font-size: 0.9rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.field-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.field-row > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 160px;
+}
+.field-row label {
+  font-size: 0.78rem;
+  color: #556;
+}

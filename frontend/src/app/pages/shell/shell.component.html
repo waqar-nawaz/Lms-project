@@ -1,0 +1,18 @@
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">LabTrack</div>
+    <nav>
+      <a routerLink="/patients" routerLinkActive="active">Patients</a>
+      <a routerLink="/orders" routerLinkActive="active">Orders</a>
+      <a routerLink="/samples" routerLinkActive="active">Samples</a>
+    </nav>
+    <div class="user-box" *ngIf="auth.currentUser() as u">
+      <div class="name">{{ u.name }}</div>
+      <div class="role">{{ u.role.replace('_', ' ') }}</div>
+      <button (click)="auth.logout()">Log out</button>
+    </div>
+  </aside>
+  <main class="content">
+    <router-outlet></router-outlet>
+  </main>
+</div>
