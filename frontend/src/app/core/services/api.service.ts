@@ -42,6 +42,9 @@ export class ApiService {
   getDepartments(): Observable<any[]> {
     return this.http.get<any[]>(`${base}/catalog/departments`);
   }
+  createDepartment(payload: { name: string; code: string }): Observable<any> {
+    return this.http.post(`${base}/catalog/departments`, payload);
+  }
   createTest(payload: any): Observable<any> {
     return this.http.post(`${base}/catalog/tests`, payload);
   }

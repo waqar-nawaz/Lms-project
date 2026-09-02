@@ -1,0 +1,119 @@
+<h1 class="page-title">Test Catalog</h1>
+
+<div class="toolbar" *ngIf="auth.hasRole('super_admin','lab_manager')">
+  <button class="btn" (click)="openForm()">+ Add Test</button>
+</div>
+
+<div class="card" *ngIf="showForm">
+  <h3 style="margin-top:0">New Test</h3>
+
+  <div class="field-row">
+    <div>
+      <label>Department</label>
+      <select [(ngModel)]="form.department_id">
+        <option value="">— Select —</option>
+        <option *ngFor="let d of departments" [value]="d.id">{{ d.name }}</option>
+      </select>
+    </div>
+    <div style="justify-content:flex-end">
+      <label>&nbsp;</label>
+      <button class="btn-outline btn btn-sm" type="button" (click)="showNewDept = !showNewDept">+ New Department</button>
+    </div>
+  </div>
+
+  <div class="card" *ngIf="showNewDept" style="background:#f4f6f8;margin-top:0.75rem">
+    <div class="field-row">
+      <div><label>Department name</label><input [(ngModel)]="newDeptName" placeholder="e.g. Biochemistry" /></div>
+      <div><label>Code</label><input [(ngModel)]="newDeptCode" placeholder="e.g. BIOCHEM" /></div>
+      <div style="justify-content:flex-end"><label>&nbsp;</label><button class="btn btn-sm" (click)="createDept()">Create</button></div>
+    </div>
+  </div>
+
+  <div class="field-row" style="margin-top:0.75rem">
+    <div><label>Test code</label><input [(ngModel)]="form.code" placeholder="e.g. LFT" /></div>
+    <div><label>Test name</label><input [(ngModel)]="form.name" placeholder="e.g. Liver Function Test" /></div>
+    <div><label>Short name</label><input [(ngModel)]="form.short_name" placeholder="e.g. LFT" /></div>
+  </div>
+  <div class="field-row" style="margin-top:0.75rem">
+    <div>
+      <label>Specimen type</label>
+      <select [(ngModel)]="form.specimen_type">
+        <option value="blood">Blood</option>
+        <option value="urine">Urine</option>
+        <option value="stool">Stool</option>
+        <option value="swab">Swab</option>
+        <option value="tissue">Tissue</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div><label>TAT (minutes)</label><input type="number" [(ngModel)]="form.tat_minutes" /></div>
+    <div><label>Price (PKR)</label><input type="number" [(ngModel)]="form.price" /></div>
+  </div>
+
+  <h4 style="margin-top:1.5rem">Parameters</h4>
+  <div *ngFor="let p of parameters; let pi = index" class="card" style="background:#f9fafb">
+    <div class="field-row">
+      <div><label>Code</label><input [(ngModel)]="p.code" placeholder="e.g. ALT" /></div>
+      <div><label>Name</label><input [(ngModel)]="p.name" placeholder="e.g. Alanine Transaminase" /></div>
+      <div>
+        <label>Result type</label>
+        <select [(ngModel)]="p.result_type">
+          <option value="numeric">Numeric</option>
+          <option value="text">Text</option>
+          <option value="positive_negative">Positive/Negative</option>
+          <option value="dropdown">Dropdown</option>
+        </select>
+      </div>
+      <div><label>Unit</label><input [(ngModel)]="p.unit" placeholder="e.g. U/L" /></div>
+      <div style="justify-content:flex-end"><label>&nbsp;</label><button class="btn-sm btn-danger btn" (click)="removeParameter(pi)">Remove</button></div>
+    </div>
+
+    <ng-container *ngIf="p.result_type === 'numeric'">
+      <div class="toolbar" style="margin-top:0.75rem">
+        <strong style="font-size:0.85rem">Reference ranges</strong>
+        <button class="btn btn-sm btn-outline" (click)="addRange(p)">+ Add Range</button>
+      </div>
+      <div *ngFor="let r of p.reference_ranges; let ri = index" class="field-row" style="margin-top:0.5rem">
+        <div>
+          <label>Gender</label>
+          <select [(ngModel)]="r.gender">
+            <option value="any">Any</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+        <div><label>Low</label><input type="number" [(ngModel)]="r.low" /></div>
+        <div><label>High</label><input type="number" [(ngModel)]="r.high" /></div>
+        <div><label>Critical low</label><input type="number" [(ngModel)]="r.critical_low" /></div>
+        <div><label>Critical high</label><input type="number" [(ngModel)]="r.critical_high" /></div>
+        <div style="justify-content:flex-end"><label>&nbsp;</label><button class="btn-sm btn-danger btn" (click)="removeRange(p, ri)">Remove</button></div>
+      </div>
+    </ng-container>
+  </div>
+
+  <button class="btn btn-outline btn-sm" style="margin-top:0.75rem" (click)="addParameter()">+ Add Parameter</button>
+
+  <div class="error" *ngIf="error" style="color:#c0392b;margin-top:0.75rem;font-size:0.85rem">{{ error }}</div>
+
+  <div class="toolbar" style="margin-top:1.25rem">
+    <button class="btn" (click)="submit()" [disabled]="saving">{{ saving ? 'Saving…' : 'Save Test' }}</button>
+    <button class="btn btn-outline" (click)="showForm = false">Cancel</button>
+  </div>
+</div>
+
+<div class="card">
+  <table class="data-table">
+    <thead><tr><th>Code</th><th>Name</th><th>Department</th><th>Specimen</th><th>Price</th><th>Parameters</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let t of tests">
+        <td>{{ t.code }}</td>
+        <td>{{ t.name }}</td>
+        <td>{{ t.department_name }}</td>
+        <td>{{ t.specimen_type }}</td>
+        <td>{{ t.price | number }}</td>
+        <td>{{ t.parameters.length || 0 }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="empty-state" *ngIf="!tests.length">No tests in catalog yet.</div>
+</div>
