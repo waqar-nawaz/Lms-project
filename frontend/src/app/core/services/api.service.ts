@@ -10,7 +10,10 @@ const base = environment.apiUrl;
 export class ApiService {
   constructor(private http: HttpClient) {}
 
-  // Patients
+  // Dashboard
+  getDashboardSummary(): Observable<any> {
+    return this.http.get(`${base}/dashboard/summary`);
+  }
   searchPatients(q: string): Observable<Patient[]> {
     return this.http.get<Patient[]>(`${base}/patients`, { params: q ? { q } : {} });
   }

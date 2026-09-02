@@ -1,0 +1,64 @@
+<h1 class="page-title">{{ greeting }}, {{ auth.currentUser()?.name }}</h1>
+
+<ng-container *ngIf="summary">
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-value">{{ summary.ordersToday }}</div>
+      <div class="stat-label">Orders Today</div>
+    </div>
+    <div class="stat-card" [class.warn]="summary.pendingCollection > 0">
+      <div class="stat-value">{{ summary.pendingCollection }}</div>
+      <div class="stat-label">Awaiting Collection</div>
+    </div>
+    <div class="stat-card" [class.warn]="summary.pendingAccession > 0">
+      <div class="stat-value">{{ summary.pendingAccession }}</div>
+      <div class="stat-label">Awaiting Accession</div>
+    </div>
+    <div class="stat-card" [class.warn]="summary.pendingVerification > 0">
+      <div class="stat-value">{{ summary.pendingVerification }}</div>
+      <div class="stat-label">Pending Verification</div>
+    </div>
+    <div class="stat-card" [class.danger]="summary.openCritical > 0">
+      <div class="stat-value">{{ summary.openCritical }}</div>
+      <div class="stat-label">Open Critical Flags</div>
+    </div>
+    <div class="stat-card good">
+      <div class="stat-value">{{ summary.revenueToday | number }}</div>
+      <div class="stat-label">Revenue Today (PKR)</div>
+    </div>
+    <div class="stat-card" [class.warn]="summary.totalDue > 0">
+      <div class="stat-value">{{ summary.totalDue | number }}</div>
+      <div class="stat-label">Total Outstanding Due</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="toolbar" style="justify-content:space-between">
+      <h3 style="margin:0">Quick Actions</h3>
+    </div>
+    <div class="quick-actions">
+      <a class="btn" routerLink="/patients">+ New Patient / Order</a>
+      <a class="btn btn-outline" *ngIf="auth.hasRole('phlebotomist','lab_technician','lab_manager','super_admin')" routerLink="/samples">Sample Worklist</a>
+      <a class="btn btn-outline" *ngIf="auth.hasRole('super_admin','lab_manager')" routerLink="/tests">Manage Test Catalog</a>
+      <a class="btn btn-outline" routerLink="/orders">View All Orders</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Recent Orders</h3>
+    <table class="data-table">
+      <thead><tr><th>Order #</th><th>Patient</th><th>Status</th><th>Total</th><th>Due</th><th>Created</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let o of summary.recentOrders" [routerLink]="['/orders', o.id]" style="cursor:pointer">
+          <td>{{ o.order_number }}</td>
+          <td>{{ o.first_name }} {{ o.last_name }} <span style="color:#93a2b3">({{ o.mrn }})</span></td>
+          <td><span class="badge" [class]="'status-' + o.status">{{ o.status.replace('_',' ') }}</span></td>
+          <td>{{ o.total | number }}</td>
+          <td>{{ o.due | number }}</td>
+          <td>{{ o.created_at | date:'short' }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="empty-state" *ngIf="!summary.recentOrders.length">No orders yet.</div>
+  </div>
+</ng-container>
