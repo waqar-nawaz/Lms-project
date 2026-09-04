@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NavigationStart, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -11,5 +11,15 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrl: './shell.component.scss',
 })
 export class ShellComponent {
-  constructor(public auth: AuthService) {}
+  menuOpen = false;
+
+  constructor(public auth: AuthService, private router: Router) {
+    this.router.events.subscribe((e) => {
+      if (e instanceof NavigationStart) this.menuOpen = false;
+    });
+  }
+
+  toggleMenu() {
+    this.menuOpen = !this.menuOpen;
+  }
 }

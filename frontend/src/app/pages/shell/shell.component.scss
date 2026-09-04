@@ -4,8 +4,17 @@
   background: #f4f6f8;
 }
 
+.mobile-topbar {
+  display: none;
+}
+
+.overlay {
+  display: none;
+}
+
 .sidebar {
   width: 220px;
+  flex-shrink: 0;
   background: #0f2942;
   color: #fff;
   display: flex;
@@ -78,4 +87,76 @@
   flex: 1;
   padding: 2rem;
   overflow-y: auto;
+  min-width: 0;
+}
+
+@media (max-width: 860px) {
+  .shell {
+    flex-direction: column;
+  }
+
+  .mobile-topbar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: #0f2942;
+    color: #fff;
+    padding: 0.85rem 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+
+    .hamburger {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.4rem;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0.15rem 0.4rem;
+    }
+
+    .brand {
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+  }
+
+  .desktop-only {
+    display: none;
+  }
+
+  .overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 40;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 250px;
+    transform: translateX(-100%);
+    transition: transform 0.22s ease;
+    z-index: 50;
+    padding-top: 4.2rem;
+
+    &.open {
+      transform: translateX(0);
+    }
+  }
+
+  .content {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    padding: 0.75rem;
+  }
 }

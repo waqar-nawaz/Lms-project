@@ -4,6 +4,8 @@
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #0f2942 0%, #145374 100%);
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 .login-card {
@@ -11,6 +13,8 @@
   padding: 2.5rem;
   border-radius: 12px;
   width: 360px;
+  max-width: 100%;
+  box-sizing: border-box;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 
   h1 {
@@ -78,5 +82,11 @@
     font-size: 0.72rem;
     color: #8a97a6;
     line-height: 1.4;
+  }
+}
+
+@media (max-width: 420px) {
+  .login-card {
+    padding: 1.75rem 1.5rem;
   }
 }

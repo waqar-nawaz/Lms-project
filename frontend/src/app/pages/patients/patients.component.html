@@ -1,7 +1,7 @@
 <h1 class="page-title">Patients</h1>
 
 <div class="toolbar">
-  <input placeholder="Search by name, MRN, phone, ID…" [(ngModel)]="query" (keyup.enter)="load()" style="min-width:260px" />
+  <input placeholder="Search by name, MRN, phone, ID…" [(ngModel)]="query" (keyup.enter)="load()" class="search-input" />
   <button class="btn btn-outline btn-sm" (click)="load()">Search</button>
   <button class="btn" (click)="openForm()">+ New Patient</button>
 </div>

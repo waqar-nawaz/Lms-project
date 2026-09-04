@@ -1,6 +1,13 @@
 <div class="shell">
-  <aside class="sidebar">
-    <div class="brand">LabTrack</div>
+  <header class="mobile-topbar">
+    <button class="hamburger" (click)="toggleMenu()" aria-label="Menu">☰</button>
+    <span class="brand">LabTrack</span>
+  </header>
+
+  <div class="overlay" *ngIf="menuOpen" (click)="toggleMenu()"></div>
+
+  <aside class="sidebar" [class.open]="menuOpen">
+    <div class="brand desktop-only">LabTrack</div>
     <nav>
       <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
       <a routerLink="/patients" routerLinkActive="active">Patients</a>
@@ -14,6 +21,7 @@
       <button (click)="auth.logout()">Log out</button>
     </div>
   </aside>
+
   <main class="content">
     <router-outlet></router-outlet>
   </main>

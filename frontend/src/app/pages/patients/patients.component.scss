@@ -1,0 +1,10 @@
+.search-input {
+  min-width: 260px;
+}
+
+@media (max-width: 500px) {
+  .search-input {
+    min-width: 0;
+    width: 100%;
+  }
+}
