@@ -28,6 +28,9 @@ export class OrderDetailComponent implements OnInit {
   paymentMethod = 'cash';
   message = '';
   error = '';
+  resultErrors: Record<string, string> = {};
+  paymentSubmitted = false;
+  paymentError = '';
 
   readonly rejectionReasons = [
     'insufficient_volume', 'hemolyzed', 'clotted', 'wrong_container', 'leaking_container',
@@ -95,7 +98,11 @@ export class OrderDetailComponent implements OnInit {
   // --- Results ---
   saveResult(row: ResultRow) {
     const value = this.resultDrafts[row.parameter_id] ?? row.value;
-    if (value === undefined || value === null || value === '') return;
+    if (value === undefined || value === null || String(value).trim() === '') {
+      this.resultErrors[row.parameter_id] = 'Value is required';
+      return;
+    }
+    delete this.resultErrors[row.parameter_id];
     this.api
       .enterResult({
         order_item_id: row.order_item_id,
@@ -133,9 +140,25 @@ export class OrderDetailComponent implements OnInit {
   }
 
   recordPayment() {
-    if (!this.invoice || !this.paymentAmount) return;
+    this.paymentSubmitted = true;
+    if (!this.invoice) return;
+    if (!this.paymentAmount || this.paymentAmount <= 0) {
+      this.paymentError = 'Enter a valid payment amount';
+      return;
+    }
+    if (!this.paymentMethod) {
+      this.paymentError = 'Select a payment method';
+      return;
+    }
+    this.paymentError = '';
     this.api.recordPayment(this.invoice.id, { amount: this.paymentAmount, method: this.paymentMethod }).subscribe({
-      next: () => { this.flash('Payment recorded'); this.paymentAmount = 0; this.loadInvoice(); this.loadAll(); },
+      next: () => {
+        this.flash('Payment recorded');
+        this.paymentAmount = 0;
+        this.paymentSubmitted = false;
+        this.loadInvoice();
+        this.loadAll();
+      },
       error: (e) => this.showError(e),
     });
   }

@@ -3,11 +3,13 @@
     <h1>LabTrack LMS</h1>
     <p class="subtitle">Laboratory Management System</p>
 
-    <label>Email</label>
-    <input type="email" name="email" [(ngModel)]="email" required autofocus />
+    <label>Email <span class="required-mark">*</span></label>
+    <input type="email" name="email" [(ngModel)]="email" [class.invalid]="submitted && !email" autofocus />
+    <div class="field-error" *ngIf="submitted && !email">Email is required</div>
 
-    <label>Password</label>
-    <input type="password" name="password" [(ngModel)]="password" required />
+    <label>Password <span class="required-mark">*</span></label>
+    <input type="password" name="password" [(ngModel)]="password" [class.invalid]="submitted && !password" />
+    <div class="field-error" *ngIf="submitted && !password">Password is required</div>
 
     <div class="error" *ngIf="error">{{ error }}</div>
 

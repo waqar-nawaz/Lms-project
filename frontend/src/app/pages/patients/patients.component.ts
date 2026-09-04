@@ -19,6 +19,7 @@ export class PatientsComponent implements OnInit {
   saving = false;
   duplicates: Patient[] = [];
   error = '';
+  submitted = false;
 
   form: Partial<Patient> = this.emptyForm();
 
@@ -41,11 +42,15 @@ export class PatientsComponent implements OnInit {
     this.form.mrn = 'MRN-' + Math.floor(100000 + Math.random() * 900000);
     this.duplicates = [];
     this.error = '';
+    this.submitted = false;
     this.showForm = true;
   }
 
   submit() {
+    this.submitted = true;
     this.error = '';
+    if (!this.form.mrn || !this.form.first_name) return;
+
     this.saving = true;
     this.api.createPatient(this.form).subscribe({
       next: (res) => {

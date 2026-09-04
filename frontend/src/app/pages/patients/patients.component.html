@@ -9,12 +9,14 @@
 <div class="card" *ngIf="showForm">
   <div class="field-row">
     <div>
-      <label>MRN</label>
-      <input [(ngModel)]="form.mrn" name="mrn" />
+      <label>MRN <span class="required-mark">*</span></label>
+      <input [(ngModel)]="form.mrn" name="mrn" [class.invalid]="submitted && !form.mrn" />
+      <div class="field-error" *ngIf="submitted && !form.mrn">MRN is required</div>
     </div>
     <div>
-      <label>First name</label>
-      <input [(ngModel)]="form.first_name" name="first_name" />
+      <label>First name <span class="required-mark">*</span></label>
+      <input [(ngModel)]="form.first_name" name="first_name" [class.invalid]="submitted && !form.first_name" />
+      <div class="field-error" *ngIf="submitted && !form.first_name">First name is required</div>
     </div>
     <div>
       <label>Last name</label>

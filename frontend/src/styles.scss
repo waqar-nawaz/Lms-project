@@ -145,6 +145,20 @@ table.data-table tr:hover td {
   color: #556;
 }
 
+.field-error {
+  color: #c0392b;
+  font-size: 0.74rem;
+  margin-top: 0.2rem;
+}
+
+.required-mark {
+  color: #c0392b;
+}
+
+input.invalid, select.invalid, textarea.invalid {
+  border-color: #c0392b;
+}
+
 @media (max-width: 860px) {
   h1.page-title {
     font-size: 1.2rem;

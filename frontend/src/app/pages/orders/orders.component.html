@@ -40,10 +40,10 @@
 
   <div style="margin-top:0.75rem;font-size:0.95rem"><strong>Subtotal: {{ subtotal | number }} PKR</strong></div>
 
-  <div class="error" *ngIf="error" style="color:#c0392b;margin-top:0.5rem;font-size:0.85rem">{{ error }}</div>
+  <div class="error" *ngIf="error" style="color:#c0392b;margin:0.5rem 0;font-size:0.85rem">{{ error }}</div>
 
   <div class="toolbar" style="margin-top:1rem">
-    <button class="btn" (click)="submit()" [disabled]="saving || !selectedTestIds.size">
+    <button class="btn" (click)="submit()" [disabled]="saving">
       {{ saving ? 'Creating…' : 'Create Order' }}
     </button>
     <button class="btn btn-outline" (click)="cancelForm()">Cancel</button>

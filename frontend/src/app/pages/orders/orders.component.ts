@@ -27,6 +27,7 @@ export class OrdersComponent implements OnInit {
   notes = '';
   saving = false;
   error = '';
+  submitted = false;
 
   constructor(private api: ApiService, private route: ActivatedRoute, private router: Router) {}
 
@@ -61,7 +62,11 @@ export class OrdersComponent implements OnInit {
   }
 
   submit() {
-    if (!this.patient || !this.selectedTestIds.size) return;
+    this.submitted = true;
+    if (!this.patient || !this.selectedTestIds.size) {
+      this.error = !this.selectedTestIds.size ? 'Select at least one test' : '';
+      return;
+    }
     this.error = '';
     this.saving = true;
     this.api

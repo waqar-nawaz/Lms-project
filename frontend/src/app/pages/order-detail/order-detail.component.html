@@ -66,7 +66,9 @@
             <input style="width:100px"
               [ngModel]="resultDrafts[r.parameter_id] || r.value"
               (ngModelChange)="resultDrafts[r.parameter_id] = $event"
+              [class.invalid]="resultErrors[r.parameter_id]"
               [disabled]="r.result_status === 'verified'" />
+            <div class="field-error" *ngIf="resultErrors[r.parameter_id]">{{ resultErrors[r.parameter_id] }}</div>
           </td>
           <td>{{ r.unit || '-' }}</td>
           <td><span class="badge" *ngIf="r.flag" [class]="'status-' + r.flag">{{ r.flag.replace('_',' ') }}</span></td>
@@ -99,7 +101,10 @@
         </tbody>
       </table>
       <div class="toolbar" style="margin-top:0.75rem" *ngIf="invoice.status !== 'paid'">
-        <input type="number" placeholder="Amount" [(ngModel)]="paymentAmount" style="width:120px" />
+        <div>
+          <input type="number" placeholder="Amount" [(ngModel)]="paymentAmount" style="width:120px"
+            [class.invalid]="paymentSubmitted && (!paymentAmount || paymentAmount <= 0)" />
+        </div>
         <select [(ngModel)]="paymentMethod">
           <option value="cash">Cash</option>
           <option value="card">Card</option>
@@ -109,6 +114,7 @@
         </select>
         <button class="btn btn-sm" (click)="recordPayment()">Record Payment</button>
       </div>
+      <div class="field-error" *ngIf="paymentError">{{ paymentError }}</div>
     </div>
   </div>
 

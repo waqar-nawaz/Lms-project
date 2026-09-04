@@ -16,11 +16,15 @@ export class LoginComponent {
   password = '';
   error = '';
   loading = false;
+  submitted = false;
 
   constructor(private auth: AuthService, private router: Router) {}
 
   submit() {
+    this.submitted = true;
     this.error = '';
+    if (!this.email || !this.password) return;
+
     this.loading = true;
     this.auth.login(this.email, this.password).subscribe({
       next: () => {

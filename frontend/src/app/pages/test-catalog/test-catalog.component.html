@@ -9,11 +9,12 @@
 
   <div class="field-row">
     <div>
-      <label>Department</label>
-      <select [(ngModel)]="form.department_id">
+      <label>Department <span class="required-mark">*</span></label>
+      <select [(ngModel)]="form.department_id" [class.invalid]="submitted && !form.department_id">
         <option value="">— Select —</option>
         <option *ngFor="let d of departments" [value]="d.id">{{ d.name }}</option>
       </select>
+      <div class="field-error" *ngIf="submitted && !form.department_id">Department is required</div>
     </div>
     <div style="justify-content:flex-end">
       <label>&nbsp;</label>
@@ -30,8 +31,16 @@
   </div>
 
   <div class="field-row" style="margin-top:0.75rem">
-    <div><label>Test code</label><input [(ngModel)]="form.code" placeholder="e.g. LFT" /></div>
-    <div><label>Test name</label><input [(ngModel)]="form.name" placeholder="e.g. Liver Function Test" /></div>
+    <div>
+      <label>Test code <span class="required-mark">*</span></label>
+      <input [(ngModel)]="form.code" placeholder="e.g. LFT" [class.invalid]="submitted && !form.code" />
+      <div class="field-error" *ngIf="submitted && !form.code">Code is required</div>
+    </div>
+    <div>
+      <label>Test name <span class="required-mark">*</span></label>
+      <input [(ngModel)]="form.name" placeholder="e.g. Liver Function Test" [class.invalid]="submitted && !form.name" />
+      <div class="field-error" *ngIf="submitted && !form.name">Name is required</div>
+    </div>
     <div><label>Short name</label><input [(ngModel)]="form.short_name" placeholder="e.g. LFT" /></div>
   </div>
   <div class="field-row" style="margin-top:0.75rem">
@@ -53,8 +62,16 @@
   <h4 style="margin-top:1.5rem">Parameters</h4>
   <div *ngFor="let p of parameters; let pi = index" class="card" style="background:#f9fafb">
     <div class="field-row">
-      <div><label>Code</label><input [(ngModel)]="p.code" placeholder="e.g. ALT" /></div>
-      <div><label>Name</label><input [(ngModel)]="p.name" placeholder="e.g. Alanine Transaminase" /></div>
+      <div>
+        <label>Code <span class="required-mark">*</span></label>
+        <input [(ngModel)]="p.code" placeholder="e.g. ALT" [class.invalid]="submitted && !p.code" />
+        <div class="field-error" *ngIf="submitted && !p.code">Required</div>
+      </div>
+      <div>
+        <label>Name <span class="required-mark">*</span></label>
+        <input [(ngModel)]="p.name" placeholder="e.g. Alanine Transaminase" [class.invalid]="submitted && !p.name" />
+        <div class="field-error" *ngIf="submitted && !p.name">Required</div>
+      </div>
       <div>
         <label>Result type</label>
         <select [(ngModel)]="p.result_type">

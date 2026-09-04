@@ -40,6 +40,7 @@ export class TestCatalogComponent implements OnInit {
   showNewDept = false;
   saving = false;
   error = '';
+  submitted = false;
 
   newDeptName = '';
   newDeptCode = '';
@@ -75,6 +76,7 @@ export class TestCatalogComponent implements OnInit {
     this.form = this.emptyForm();
     this.parameters = [];
     this.error = '';
+    this.submitted = false;
     this.showForm = true;
   }
 
@@ -110,6 +112,10 @@ export class TestCatalogComponent implements OnInit {
     p.reference_ranges.splice(i, 1);
   }
 
+  hasIncompleteParam(): boolean {
+    return this.parameters.some((p) => !p.code || !p.name);
+  }
+
   createDept() {
     if (!this.newDeptName || !this.newDeptCode) return;
     this.api.createDepartment({ name: this.newDeptName, code: this.newDeptCode }).subscribe({
@@ -125,8 +131,9 @@ export class TestCatalogComponent implements OnInit {
   }
 
   submit() {
-    if (!this.form.department_id || !this.form.code || !this.form.name) {
-      this.error = 'Department, code, and name are required';
+    this.submitted = true;
+    if (!this.form.department_id || !this.form.code || !this.form.name || this.hasIncompleteParam()) {
+      this.error = 'Please fill all required fields, including any parameter rows added.';
       return;
     }
     this.error = '';
