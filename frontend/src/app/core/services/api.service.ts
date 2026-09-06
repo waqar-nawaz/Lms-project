@@ -32,6 +32,14 @@ export class ApiService {
       responseType: 'blob',
     });
   }
+
+  // Admin: backup & restore
+  downloadBackup(): Observable<Blob> {
+    return this.http.get(`${base}/admin/backup`, { responseType: 'blob' });
+  }
+  restoreBackup(payload: any): Observable<any> {
+    return this.http.post(`${base}/admin/restore`, payload);
+  }
   searchPatients(q: string): Observable<Patient[]> {
     return this.http.get<Patient[]>(`${base}/patients`, { params: q ? { q } : {} });
   }
@@ -68,6 +76,9 @@ export class ApiService {
   }
   createTest(payload: any): Observable<any> {
     return this.http.post(`${base}/catalog/tests`, payload);
+  }
+  updateTest(id: string, payload: any): Observable<any> {
+    return this.http.put(`${base}/catalog/tests/${id}`, payload);
   }
 
   // Orders

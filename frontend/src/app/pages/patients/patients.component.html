@@ -57,7 +57,7 @@
   </div>
 
   <div class="toolbar" style="margin-top:1rem">
-    <button class="btn" (click)="submit()" [disabled]="saving">{{ saving ? 'Saving…' : 'Save Patient' }}</button>
+    <button class="btn" (click)="submit()" [disabled]="saving">{{ saving ? 'Saving…' : (editingId ? 'Update Patient' : 'Save Patient') }}</button>
     <button class="btn btn-outline" (click)="showForm = false">Cancel</button>
   </div>
 </div>
@@ -65,7 +65,7 @@
 <div class="card">
   <table class="data-table">
     <thead>
-      <tr><th>MRN</th><th>Name</th><th>DOB</th><th>Gender</th><th>Phone</th><th></th></tr>
+      <tr><th>MRN</th><th>Name</th><th>DOB</th><th>Gender</th><th>Phone</th><th>CNIC</th><th></th></tr>
     </thead>
     <tbody>
       <tr *ngFor="let p of patients">
@@ -74,7 +74,11 @@
         <td>{{ p.dob ? (p.dob | date:'mediumDate') : '-' }}</td>
         <td>{{ p.gender || '-' }}</td>
         <td>{{ p.phone || '-' }}</td>
-        <td><button class="btn btn-sm" (click)="startOrder(p)">New Order</button></td>
+        <td>{{ p.identity_number || '-' }}</td>
+        <td style="white-space:nowrap">
+          <button class="btn btn-sm btn-outline" (click)="openEditForm(p)">Edit</button>
+          <button class="btn btn-sm" (click)="startOrder(p)">New Order</button>
+        </td>
       </tr>
     </tbody>
   </table>

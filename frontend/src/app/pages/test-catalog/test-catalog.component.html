@@ -5,10 +5,10 @@
 </div>
 
 <div class="card" *ngIf="showForm">
-  <h3 style="margin-top:0">New Test</h3>
+  <h3 style="margin-top:0">{{ editingId ? 'Edit Test' : 'New Test' }}</h3>
 
-  <div class="field-row">
-    <div>
+  <div class="dept-row">
+    <div class="dept-select">
       <label>Department <span class="required-mark">*</span></label>
       <select [(ngModel)]="form.department_id" [class.invalid]="submitted && !form.department_id">
         <option value="">— Select —</option>
@@ -16,10 +16,7 @@
       </select>
       <div class="field-error" *ngIf="submitted && !form.department_id">Department is required</div>
     </div>
-    <div style="justify-content:flex-end">
-      <label>&nbsp;</label>
-      <button class="btn-outline btn btn-sm" type="button" (click)="showNewDept = !showNewDept">+ New Department</button>
-    </div>
+    <button class="btn-outline btn btn-sm dept-new-btn" type="button" (click)="showNewDept = !showNewDept">+ New Department</button>
   </div>
 
   <div class="card" *ngIf="showNewDept" style="background:#f4f6f8;margin-top:0.75rem">
@@ -33,7 +30,7 @@
   <div class="field-row" style="margin-top:0.75rem">
     <div>
       <label>Test code <span class="required-mark">*</span></label>
-      <input [(ngModel)]="form.code" placeholder="e.g. LFT" [class.invalid]="submitted && !form.code" />
+      <input [(ngModel)]="form.code" placeholder="e.g. LFT" [class.invalid]="submitted && !form.code" [disabled]="!!editingId" />
       <div class="field-error" *ngIf="submitted && !form.code">Code is required</div>
     </div>
     <div>
@@ -59,6 +56,17 @@
     <div><label>Price (PKR)</label><input type="number" [(ngModel)]="form.price" /></div>
   </div>
 
+  <div class="field-row" style="margin-top:0.75rem" *ngIf="editingId">
+    <div>
+      <label>Status</label>
+      <select [(ngModel)]="form.active">
+        <option [ngValue]="true">Active</option>
+        <option [ngValue]="false">Inactive (hidden from catalog)</option>
+      </select>
+    </div>
+  </div>
+
+  <ng-container *ngIf="!editingId">
   <h4 style="margin-top:1.5rem">Parameters</h4>
   <div *ngFor="let p of parameters; let pi = index" class="card" style="background:#f9fafb">
     <div class="field-row">
@@ -109,18 +117,21 @@
   </div>
 
   <button class="btn btn-outline btn-sm" style="margin-top:0.75rem" (click)="addParameter()">+ Add Parameter</button>
+  </ng-container>
+
+  <div class="hint-note" *ngIf="editingId">Parameters and reference ranges can't be edited here yet — contact an admin for changes to test parameters.</div>
 
   <div class="error" *ngIf="error" style="color:#c0392b;margin-top:0.75rem;font-size:0.85rem">{{ error }}</div>
 
   <div class="toolbar" style="margin-top:1.25rem">
-    <button class="btn" (click)="submit()" [disabled]="saving">{{ saving ? 'Saving…' : 'Save Test' }}</button>
+    <button class="btn" (click)="submit()" [disabled]="saving">{{ saving ? 'Saving…' : (editingId ? 'Update Test' : 'Save Test') }}</button>
     <button class="btn btn-outline" (click)="showForm = false">Cancel</button>
   </div>
 </div>
 
 <div class="card">
   <table class="data-table">
-    <thead><tr><th>Code</th><th>Name</th><th>Department</th><th>Specimen</th><th>Price</th><th>Parameters</th></tr></thead>
+    <thead><tr><th>Code</th><th>Name</th><th>Department</th><th>Specimen</th><th>Price</th><th>Parameters</th><th></th></tr></thead>
     <tbody>
       <tr *ngFor="let t of tests">
         <td>{{ t.code }}</td>
@@ -129,6 +140,10 @@
         <td>{{ t.specimen_type }}</td>
         <td>{{ t.price | number }}</td>
         <td>{{ t.parameters.length || 0 }}</td>
+        <td style="white-space:nowrap" *ngIf="auth.hasRole('super_admin','lab_manager')">
+          <button class="btn btn-sm btn-outline" (click)="openEditForm(t)">Edit</button>
+          <button class="btn btn-sm btn-danger" (click)="deactivate(t)">Remove</button>
+        </td>
       </tr>
     </tbody>
   </table>

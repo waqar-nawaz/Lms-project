@@ -17,6 +17,7 @@ export const routes: Routes = [
       { path: 'samples', loadComponent: () => import('./pages/samples/samples.component').then(m => m.SamplesComponent) },
       { path: 'tests', loadComponent: () => import('./pages/test-catalog/test-catalog.component').then(m => m.TestCatalogComponent) },
       { path: 'analytics', loadComponent: () => import('./pages/analytics/analytics.component').then(m => m.AnalyticsComponent) },
+      { path: 'admin/backup', loadComponent: () => import('./pages/admin-backup/admin-backup.component').then(m => m.AdminBackupComponent) },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },

@@ -1,0 +1,43 @@
+<h1 class="page-title">Backup &amp; Restore</h1>
+
+<div class="toast success" *ngIf="message">{{ message }}</div>
+<div class="toast error" *ngIf="error">{{ error }}</div>
+
+<div class="card">
+  <h3 style="margin-top:0">Download Backup</h3>
+  <p class="desc">Exports every table (patients, orders, results, reports, billing, users, etc.) as a single JSON file.</p>
+  <button class="btn" (click)="downloadBackup()" [disabled]="downloading">
+    {{ downloading ? 'Preparing…' : 'Download Backup' }}
+  </button>
+</div>
+
+<div class="card danger-zone">
+  <h3 style="margin-top:0">Restore from Backup</h3>
+  <p class="desc">
+    <strong>Warning:</strong> restoring will permanently erase all current data and replace it with the contents
+    of the backup file. This cannot be undone. Make sure you have a current backup before proceeding.
+  </p>
+
+  <input type="file" accept="application/json" (change)="onFileSelected($event)" />
+  <div class="field-error" *ngIf="parseError">{{ parseError }}</div>
+
+  <div class="preview" *ngIf="parsedBackup">
+    <div class="preview-title">Backup exported: {{ parsedBackup.exportedAt | date:'medium' }}</div>
+    <table class="data-table">
+      <thead><tr><th>Table</th><th>Rows</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let t of tableSummary"><td>{{ t.table }}</td><td>{{ t.count }}</td></tr>
+      </tbody>
+    </table>
+
+    <label style="margin-top:1rem">Type <strong>RESTORE</strong> to confirm</label>
+    <input [(ngModel)]="confirmText" placeholder="RESTORE" />
+
+    <div class="toolbar" style="margin-top:1rem">
+      <button class="btn btn-danger" (click)="restore()" [disabled]="restoring || confirmText !== 'RESTORE'">
+        {{ restoring ? 'Restoring…' : 'Restore Now' }}
+      </button>
+      <button class="btn btn-outline" (click)="cancelRestore()">Cancel</button>
+    </div>
+  </div>
+</div>

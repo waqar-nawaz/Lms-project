@@ -1,0 +1,29 @@
+.toast {
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+.toast.success { background: #dcf3e5; color: #1b7a41; }
+.toast.error { background: #fbe0dd; color: #b12f21; }
+
+.desc {
+  color: #6b7c8f;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.danger-zone {
+  border: 1px solid #fbe0dd;
+}
+
+.preview {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eef1f4;
+}
+.preview-title {
+  font-size: 0.82rem;
+  color: #6b7c8f;
+  margin-bottom: 0.6rem;
+}

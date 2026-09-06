@@ -14,7 +14,7 @@ import { Specimen } from '../../core/models/models';
 })
 export class SamplesComponent implements OnInit {
   specimens: (Specimen & { order_number?: string; first_name?: string; last_name?: string; mrn?: string })[] = [];
-  statusFilter = 'awaiting_collection';
+  statusFilter = '';
   message = '';
 
   constructor(private api: ApiService) {}

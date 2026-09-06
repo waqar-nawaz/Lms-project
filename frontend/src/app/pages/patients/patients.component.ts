@@ -20,6 +20,7 @@ export class PatientsComponent implements OnInit {
   duplicates: Patient[] = [];
   error = '';
   submitted = false;
+  editingId: string | null = null;
 
   form: Partial<Patient> = this.emptyForm();
 
@@ -38,8 +39,18 @@ export class PatientsComponent implements OnInit {
   }
 
   openForm() {
+    this.editingId = null;
     this.form = this.emptyForm();
     this.form.mrn = 'MRN-' + Math.floor(100000 + Math.random() * 900000);
+    this.duplicates = [];
+    this.error = '';
+    this.submitted = false;
+    this.showForm = true;
+  }
+
+  openEditForm(p: Patient) {
+    this.editingId = p.id;
+    this.form = { ...p, dob: p.dob ? String(p.dob).slice(0, 10) : undefined };
     this.duplicates = [];
     this.error = '';
     this.submitted = false;
@@ -52,6 +63,22 @@ export class PatientsComponent implements OnInit {
     if (!this.form.mrn || !this.form.first_name) return;
 
     this.saving = true;
+
+    if (this.editingId) {
+      this.api.updatePatient(this.editingId, this.form).subscribe({
+        next: () => {
+          this.saving = false;
+          this.showForm = false;
+          this.load();
+        },
+        error: (err) => {
+          this.saving = false;
+          this.error = err.error?.error || 'Failed to update patient';
+        },
+      });
+      return;
+    }
+
     this.api.createPatient(this.form).subscribe({
       next: (res) => {
         this.saving = false;

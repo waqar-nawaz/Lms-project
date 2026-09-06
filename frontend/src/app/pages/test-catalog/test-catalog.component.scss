@@ -1,0 +1,24 @@
+.dept-row {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.dept-select {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.dept-new-btn {
+  flex: 0 0 auto;
+  height: 38px;
+  white-space: nowrap;
+}
+.hint-note {
+  margin-top: 1rem;
+  font-size: 0.78rem;
+  color: #8a97a6;
+  font-style: italic;
+}

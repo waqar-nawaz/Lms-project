@@ -41,6 +41,7 @@ export class TestCatalogComponent implements OnInit {
   saving = false;
   error = '';
   submitted = false;
+  editingId: string | null = null;
 
   newDeptName = '';
   newDeptCode = '';
@@ -69,11 +70,32 @@ export class TestCatalogComponent implements OnInit {
       method: '',
       tat_minutes: 60,
       price: 0,
+      active: true,
     };
   }
 
   openForm() {
+    this.editingId = null;
     this.form = this.emptyForm();
+    this.parameters = [];
+    this.error = '';
+    this.submitted = false;
+    this.showForm = true;
+  }
+
+  openEditForm(t: LabTest) {
+    this.editingId = t.id;
+    this.form = {
+      department_id: (t as any).department_id,
+      code: t.code,
+      name: t.name,
+      short_name: t.short_name || '',
+      specimen_type: t.specimen_type,
+      method: (t as any).method || '',
+      tat_minutes: (t as any).tat_minutes || 60,
+      price: t.price,
+      active: (t as any).active ?? true,
+    };
     this.parameters = [];
     this.error = '';
     this.submitted = false;
@@ -132,6 +154,28 @@ export class TestCatalogComponent implements OnInit {
 
   submit() {
     this.submitted = true;
+
+    if (this.editingId) {
+      if (!this.form.department_id || !this.form.name) {
+        this.error = 'Please fill all required fields.';
+        return;
+      }
+      this.error = '';
+      this.saving = true;
+      this.api.updateTest(this.editingId, this.form).subscribe({
+        next: () => {
+          this.saving = false;
+          this.showForm = false;
+          this.load();
+        },
+        error: (err) => {
+          this.saving = false;
+          this.error = err.error?.error || 'Failed to update test';
+        },
+      });
+      return;
+    }
+
     if (!this.form.department_id || !this.form.code || !this.form.name || this.hasIncompleteParam()) {
       this.error = 'Please fill all required fields, including any parameter rows added.';
       return;
@@ -157,5 +201,10 @@ export class TestCatalogComponent implements OnInit {
           this.error = err.error?.error || 'Failed to create test';
         },
       });
+  }
+
+  deactivate(t: LabTest) {
+    if (!confirm(`Remove "${t.name}" from the active catalog? It can be restored later by an admin.`)) return;
+    this.api.updateTest(t.id, { ...t, active: false }).subscribe(() => this.load());
   }
 }

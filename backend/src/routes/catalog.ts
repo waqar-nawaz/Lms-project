@@ -42,8 +42,7 @@ router.get('/tests', async (req, res) => {
   res.json(rows);
 });
 
-router.post('/tests', requireRole('super_admin', 'lab_manager'), async (req, res) => {
-  const { department_id, code, name, short_name, specimen_type, method, tat_minutes, price, parameters } = req.body;
+router.post('/tests', requireRole('super_admin', 'lab_manager'), async (req, res) => {  const { department_id, code, name, short_name, specimen_type, method, tat_minutes, price, parameters } = req.body;
   if (!department_id || !code || !name || !specimen_type) {
     return res.status(400).json({ error: 'department_id, code, name, specimen_type are required' });
   }
@@ -77,6 +76,22 @@ router.post('/tests', requireRole('super_admin', 'lab_manager'), async (req, res
   }
 
   res.status(201).json(test);
+});
+
+router.put('/tests/:id', requireRole('super_admin', 'lab_manager'), async (req, res) => {
+  const { department_id, name, short_name, specimen_type, method, tat_minutes, price, active } = req.body;
+  if (!department_id || !name || !specimen_type) {
+    return res.status(400).json({ error: 'department_id, name, and specimen_type are required' });
+  }
+  const { rows } = await query(
+    `UPDATE tests SET department_id=$1, name=$2, short_name=$3, specimen_type=$4, method=$5,
+       tat_minutes=$6, price=$7, active=$8
+     WHERE id=$9 RETURNING *`,
+    [department_id, name, short_name || null, specimen_type, method || null,
+      tat_minutes || null, price || 0, active ?? true, req.params.id]
+  );
+  if (!rows[0]) return res.status(404).json({ error: 'Not found' });
+  res.json(rows[0]);
 });
 
 export default router;
