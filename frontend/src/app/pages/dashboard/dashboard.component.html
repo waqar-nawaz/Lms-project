@@ -1,5 +1,10 @@
 <h1 class="page-title">{{ greeting }}, {{ auth.currentUser()?.name }}</h1>
 
+<div class="spinner-block" *ngIf="!summary">
+  <div class="spinner"></div>
+  <span>Loading dashboard…</span>
+</div>
+
 <ng-container *ngIf="summary">
   <div class="stat-grid">
     <div class="stat-card">
@@ -40,6 +45,7 @@
       <a class="btn" routerLink="/patients">+ New Patient / Order</a>
       <a class="btn btn-outline" *ngIf="auth.hasRole('phlebotomist','lab_technician','lab_manager','super_admin')" routerLink="/samples">Sample Worklist</a>
       <a class="btn btn-outline" *ngIf="auth.hasRole('super_admin','lab_manager')" routerLink="/tests">Manage Test Catalog</a>
+      <a class="btn btn-outline" *ngIf="auth.hasRole('super_admin','lab_manager','accountant','pathologist')" routerLink="/analytics">Reports &amp; Analytics</a>
       <a class="btn btn-outline" routerLink="/orders">View All Orders</a>
     </div>
   </div>

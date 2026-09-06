@@ -14,6 +14,24 @@ export class ApiService {
   getDashboardSummary(): Observable<any> {
     return this.http.get(`${base}/dashboard/summary`);
   }
+
+  // Analytics
+  getAnalyticsSummary(filters: { from?: string; to?: string; test_id?: string; doctor_id?: string }): Observable<any> {
+    const params: Record<string, string> = {};
+    Object.entries(filters).forEach(([k, v]) => { if (v) params[k] = v; });
+    return this.http.get(`${base}/analytics/orders-summary`, { params });
+  }
+
+  // Patient portal (public, no auth)
+  patientPortalLookup(identifier: string, dob: string): Observable<any> {
+    return this.http.get(`${base}/patient-portal/lookup`, { params: { identifier, dob } });
+  }
+  patientPortalDownload(reportId: string, identifier: string, dob: string): Observable<Blob> {
+    return this.http.get(`${base}/patient-portal/reports/${reportId}/download`, {
+      params: { identifier, dob },
+      responseType: 'blob',
+    });
+  }
   searchPatients(q: string): Observable<Patient[]> {
     return this.http.get<Patient[]>(`${base}/patients`, { params: q ? { q } : {} });
   }

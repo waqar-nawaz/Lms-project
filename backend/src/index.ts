@@ -13,6 +13,8 @@ import resultRoutes from './routes/results';
 import reportRoutes from './routes/reports';
 import billingRoutes from './routes/billing';
 import dashboardRoutes from './routes/dashboard';
+import analyticsRoutes from './routes/analytics';
+import patientPortalRoutes from './routes/patientPortal';
 
 const app = express();
 app.use(cors());
@@ -30,6 +32,8 @@ app.use('/api/results', resultRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/billing', billingRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/patient-portal', patientPortalRoutes);
 
 const port = process.env.PORT || 4000;
 app.listen(port, () => console.log(`LMS backend listening on port ${port}`));

@@ -1,0 +1,57 @@
+<div class="portal-wrap">
+  <div class="portal-card">
+    <h1>LabTrack</h1>
+    <p class="subtitle">View your test reports</p>
+
+    <ng-container *ngIf="!result">
+      <label>Phone Number or CNIC <span class="required-mark">*</span></label>
+      <input
+        [(ngModel)]="identifier"
+        placeholder="e.g. 03001234567"
+        [class.invalid]="submitted && !identifier"
+        (keyup.enter)="search()"
+      />
+      <div class="field-error" *ngIf="submitted && !identifier">Phone number or CNIC is required</div>
+
+      <label>Date of Birth <span class="required-mark">*</span></label>
+      <input
+        type="date"
+        [(ngModel)]="dob"
+        [class.invalid]="submitted && !dob"
+        (keyup.enter)="search()"
+      />
+      <div class="field-error" *ngIf="submitted && !dob">Date of birth is required</div>
+
+      <div class="server-error" *ngIf="error">{{ error }}</div>
+
+      <button class="btn" (click)="search()" [disabled]="loading">
+        {{ loading ? 'Searching…' : 'View My Reports' }}
+      </button>
+
+      <div class="hint">
+        Enter the phone number or CNIC on file with the lab, along with your date of birth,
+        to view and download your finalized test reports.
+      </div>
+
+      <a routerLink="/login" class="staff-link">Lab staff login →</a>
+    </ng-container>
+
+    <ng-container *ngIf="result">
+      <div class="patient-name">{{ result.patient.first_name }} {{ result.patient.last_name }}</div>
+      <div class="patient-mrn">MRN: {{ result.patient.mrn }}</div>
+
+      <div class="report-list">
+        <div class="report-item" *ngFor="let r of result.reports">
+          <div>
+            <div class="report-number">{{ r.report_number }}</div>
+            <div class="report-meta">{{ r.tests.join(', ') }} · {{ r.finalized_at | date:'mediumDate' }}</div>
+          </div>
+          <button class="btn btn-sm" (click)="download(r.id, r.report_number)">Download</button>
+        </div>
+        <div class="empty-state" *ngIf="!result.reports.length">No finalized reports available yet.</div>
+      </div>
+
+      <button class="btn btn-outline" style="margin-top:1.25rem;width:100%" (click)="searchAgain()">Search Again</button>
+    </ng-container>
+  </div>
+</div>

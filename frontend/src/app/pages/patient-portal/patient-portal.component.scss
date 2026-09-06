@@ -1,4 +1,4 @@
-.login-wrap {
+.portal-wrap {
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -8,11 +8,11 @@
   box-sizing: border-box;
 }
 
-.login-card {
+.portal-card {
   background: #fff;
   padding: 2.5rem;
   border-radius: 12px;
-  width: 360px;
+  width: 400px;
   max-width: 100%;
   box-sizing: border-box;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -51,27 +51,14 @@
     }
   }
 
-  button {
+  .btn {
     width: 100%;
     margin-top: 1.5rem;
     padding: 0.7rem;
-    background: #145374;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
     font-size: 0.95rem;
-    cursor: pointer;
-
-    &:hover {
-      background: #0f2942;
-    }
-    &:disabled {
-      opacity: 0.6;
-      cursor: default;
-    }
   }
 
-  .error {
+  .server-error {
     margin-top: 0.75rem;
     color: #c0392b;
     font-size: 0.85rem;
@@ -82,9 +69,10 @@
     font-size: 0.72rem;
     color: #8a97a6;
     line-height: 1.4;
+    text-align: center;
   }
 
-  .patient-link {
+  .staff-link {
     display: block;
     text-align: center;
     margin-top: 1rem;
@@ -92,13 +80,44 @@
     color: #145374;
     text-decoration: none;
   }
-  .patient-link:hover {
+  .staff-link:hover {
     text-decoration: underline;
   }
 }
 
-@media (max-width: 420px) {
-  .login-card {
-    padding: 1.75rem 1.5rem;
-  }
+.patient-name {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #0f2942;
+  margin-top: 0.5rem;
+}
+.patient-mrn {
+  font-size: 0.8rem;
+  color: #6b7c8f;
+  margin-bottom: 1.25rem;
+}
+
+.report-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.report-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f4f6f8;
+  border-radius: 8px;
+}
+.report-number {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: #1c2733;
+}
+.report-meta {
+  font-size: 0.75rem;
+  color: #6b7c8f;
+  margin-top: 0.15rem;
 }

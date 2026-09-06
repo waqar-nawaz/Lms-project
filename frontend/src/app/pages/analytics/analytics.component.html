@@ -1,0 +1,87 @@
+<h1 class="page-title">Reports &amp; Analytics</h1>
+
+<div class="card">
+  <div class="toolbar">
+    <button class="btn-sm btn" [class.btn-outline]="preset !== 'today'" (click)="setPreset('today')">Today</button>
+    <button class="btn-sm btn" [class.btn-outline]="preset !== 'week'" (click)="setPreset('week')">This Week</button>
+    <button class="btn-sm btn" [class.btn-outline]="preset !== 'month'" (click)="setPreset('month')">This Month</button>
+    <button class="btn-sm btn" [class.btn-outline]="preset !== 'custom'" (click)="preset = 'custom'">Custom</button>
+  </div>
+
+  <div class="field-row" style="margin-top:0.5rem">
+    <div>
+      <label>From</label>
+      <input type="date" [(ngModel)]="fromDate" (change)="preset = 'custom'" />
+    </div>
+    <div>
+      <label>To</label>
+      <input type="date" [(ngModel)]="toDate" (change)="preset = 'custom'" />
+    </div>
+    <div>
+      <label>Test</label>
+      <select [(ngModel)]="testId">
+        <option value="">All tests</option>
+        <option *ngFor="let t of tests" [value]="t.id">{{ t.name }}</option>
+      </select>
+    </div>
+    <div>
+      <label>Doctor</label>
+      <select [(ngModel)]="doctorId">
+        <option value="">All doctors</option>
+        <option *ngFor="let d of doctors" [value]="d.id">{{ d.name }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="toolbar" style="margin-top:0.75rem">
+    <button class="btn btn-sm" (click)="apply()">Apply Filters</button>
+    <button class="btn btn-outline btn-sm" (click)="clearFilters()">Reset</button>
+  </div>
+</div>
+
+<div class="spinner-block" *ngIf="loading">
+  <div class="spinner"></div>
+  <span>Loading analytics…</span>
+</div>
+
+<ng-container *ngIf="summary && !loading">
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-value">{{ summary.totalOrders }}</div>
+      <div class="stat-label">Total Orders</div>
+    </div>
+    <div class="stat-card good">
+      <div class="stat-value">{{ summary.totalRevenue | number }}</div>
+      <div class="stat-label">Total Revenue (PKR)</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">By Test</h3>
+    <table class="data-table">
+      <thead><tr><th>Test</th><th>Code</th><th>Count</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let t of summary.byTest">
+          <td>{{ t.test_name }}</td>
+          <td>{{ t.test_code }}</td>
+          <td>{{ t.count }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="empty-state" *ngIf="!summary.byTest.length">No data for this filter.</div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">By Referring Doctor</h3>
+    <table class="data-table">
+      <thead><tr><th>Doctor</th><th>Orders</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let d of summary.byDoctor">
+          <td>{{ d.doctor_name }}</td>
+          <td>{{ d.count }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="empty-state" *ngIf="!summary.byDoctor.length">No data for this filter.</div>
+  </div>
+</ng-container>

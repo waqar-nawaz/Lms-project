@@ -128,6 +128,28 @@ table.data-table tr:hover td {
   text-align: center;
 }
 
+.spinner-block {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #6b7c8f;
+  font-size: 0.9rem;
+  padding: 2rem;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #d5dbe2;
+  border-top-color: #145374;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .field-row {
   display: flex;
   gap: 1rem;
