@@ -1,7 +1,7 @@
 .shell {
   display: flex;
   min-height: 100vh;
-  background: #f4f6f8;
+  background: var(--bg);
 }
 
 .mobile-topbar {
@@ -19,14 +19,45 @@
   color: #fff;
   display: flex;
   flex-direction: column;
-  padding: 1.5rem 1rem;
+  padding: 1.25rem 1rem;
   box-sizing: border-box;
+  transition: width 0.2s ease;
+
+  .sidebar-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
 
   .brand {
     font-size: 1.2rem;
     font-weight: 600;
-    margin-bottom: 2rem;
     letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  .collapse-btn {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #b8c6d6;
+    border-radius: 6px;
+    padding: 0.3rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
   }
 
   nav {
@@ -36,11 +67,16 @@
     flex: 1;
 
     a {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
       color: #b8c6d6;
       text-decoration: none;
       padding: 0.6rem 0.75rem;
       border-radius: 6px;
       font-size: 0.9rem;
+      white-space: nowrap;
+      position: relative;
 
       &:hover {
         background: rgba(255, 255, 255, 0.06);
@@ -60,31 +96,118 @@
     margin-top: 0.75rem;
   }
 
+  .nav-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #b8c6d6;
+    padding: 0.55rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    margin-top: 0.75rem;
+    white-space: nowrap;
+    position: relative;
+    font-family: inherit;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+  }
+
   .user-box {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding-top: 1rem;
+    margin-top: 0.75rem;
     font-size: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 
     .name {
       font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .role {
       color: #8a9bb0;
       text-transform: capitalize;
-      margin-bottom: 0.6rem;
     }
-    button {
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #145374;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin: 0 auto;
+    }
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
       width: 100%;
       background: transparent;
       border: 1px solid #35516b;
       color: #cfd9e3;
-      padding: 0.4rem;
+      padding: 0.45rem 0.6rem;
       border-radius: 6px;
       cursor: pointer;
       font-size: 0.78rem;
+      white-space: nowrap;
+      position: relative;
+      font-family: inherit;
 
       &:hover {
         background: #16334a;
+      }
+    }
+  }
+
+  // Collapsed state
+  &.collapsed {
+    width: 64px;
+
+    nav a, .theme-toggle, .logout-btn {
+      justify-content: center;
+      padding: 0.6rem;
+    }
+
+    .user-box {
+      align-items: center;
+    }
+
+    // Tooltip on hover when collapsed
+    nav a, .theme-toggle, .logout-btn {
+      &:hover::after {
+        content: attr(data-label);
+        position: absolute;
+        left: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+        margin-left: 0.6rem;
+        background: #1c2733;
+        color: #fff;
+        padding: 0.35rem 0.65rem;
+        border-radius: 6px;
+        font-size: 0.78rem;
+        white-space: nowrap;
+        z-index: 200;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
       }
     }
   }
@@ -146,7 +269,7 @@
     top: 0;
     left: 0;
     bottom: 0;
-    width: 250px;
+    width: 250px !important;
     transform: translateX(-100%);
     transition: transform 0.22s ease;
     z-index: 50;
@@ -154,6 +277,26 @@
 
     &.open {
       transform: translateX(0);
+    }
+
+    // Never show collapsed/icon-only mode on mobile — always full width off-canvas
+    &.collapsed nav a,
+    &.collapsed .theme-toggle,
+    &.collapsed .logout-btn {
+      justify-content: flex-start;
+      padding: 0.6rem 0.75rem;
+    }
+    &.collapsed nav a span,
+    &.collapsed .theme-toggle span,
+    &.collapsed .logout-btn span {
+      display: inline !important;
+    }
+    &.collapsed .user-box .name,
+    &.collapsed .user-box .role {
+      display: block !important;
+    }
+    &.collapsed .avatar {
+      display: none;
     }
   }
 

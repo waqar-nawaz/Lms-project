@@ -6,7 +6,7 @@
 }
 
 .stat-card {
-  background: #fff;
+  background: var(--surface);
   border-radius: 10px;
   padding: 1.25rem;
   box-shadow: 0 1px 3px rgba(15, 41, 66, 0.08);
@@ -19,7 +19,7 @@
 .stat-value {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #0f2942;
+  color: var(--heading);
 }
 
 .stat-label {

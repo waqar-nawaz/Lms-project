@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { LoadingService } from './core/services/loading.service';
+import { ThemeService } from './core/services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -30,5 +31,5 @@ import { LoadingService } from './core/services/loading.service';
   `],
 })
 export class AppComponent {
-  constructor(public loading: LoadingService) {}
+  constructor(public loading: LoadingService, private themeService: ThemeService) {}
 }

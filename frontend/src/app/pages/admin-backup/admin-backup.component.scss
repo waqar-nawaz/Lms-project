@@ -8,7 +8,7 @@
 .toast.error { background: #fbe0dd; color: #b12f21; }
 
 .desc {
-  color: #6b7c8f;
+  color: var(--text-muted);
   font-size: 0.85rem;
   margin-bottom: 1rem;
 }
@@ -24,6 +24,6 @@
 }
 .preview-title {
   font-size: 0.82rem;
-  color: #6b7c8f;
+  color: var(--text-muted);
   margin-bottom: 0.6rem;
 }
