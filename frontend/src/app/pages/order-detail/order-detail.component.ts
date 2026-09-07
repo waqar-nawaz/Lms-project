@@ -97,6 +97,7 @@ export class OrderDetailComponent implements OnInit {
 
   // --- Results ---
   saveResult(row: ResultRow) {
+    if (!this.specimenReady(row)) return;
     const value = this.resultDrafts[row.parameter_id] ?? row.value;
     if (value === undefined || value === null || String(value).trim() === '') {
       this.resultErrors[row.parameter_id] = 'Value is required';
@@ -124,6 +125,18 @@ export class OrderDetailComponent implements OnInit {
       next: () => { this.flash('Result verified'); this.loadAll(); },
       error: (e) => this.showError(e),
     });
+  }
+
+  specimenReady(row: ResultRow): boolean {
+    return ['accepted', 'processing', 'completed'].includes(row.specimen_status || '');
+  }
+
+  specimenBlockReason(row: ResultRow): string {
+    if (!row.specimen_status) return 'Generate the specimen first';
+    if (row.specimen_status === 'rejected') return 'Specimen rejected — awaiting redraw';
+    if (row.specimen_status === 'awaiting_collection') return 'Awaiting specimen collection';
+    if (row.specimen_status === 'collected') return 'Awaiting lab accession';
+    return 'Specimen not ready';
   }
 
   // --- Billing ---

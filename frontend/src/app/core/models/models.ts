@@ -96,6 +96,8 @@ export interface Specimen {
 export interface ResultRow {
   order_item_id: string;
   test_name: string;
+  specimen_type?: string;
+  specimen_status?: string;
   parameter_id: string;
   parameter_name: string;
   unit?: string;

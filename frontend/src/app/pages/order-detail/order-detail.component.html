@@ -67,14 +67,15 @@
               [ngModel]="resultDrafts[r.parameter_id] || r.value"
               (ngModelChange)="resultDrafts[r.parameter_id] = $event"
               [class.invalid]="resultErrors[r.parameter_id]"
-              [disabled]="r.result_status === 'verified'" />
+              [disabled]="r.result_status === 'verified' || !specimenReady(r)" />
             <div class="field-error" *ngIf="resultErrors[r.parameter_id]">{{ resultErrors[r.parameter_id] }}</div>
+            <div class="field-error" *ngIf="!specimenReady(r) && r.result_status !== 'verified'">{{ specimenBlockReason(r) }}</div>
           </td>
           <td>{{ r.unit || '-' }}</td>
           <td><span class="badge" *ngIf="r.flag" [class]="'status-' + r.flag">{{ r.flag.replace('_',' ') }}</span></td>
           <td><span class="badge" *ngIf="r.result_status" [class]="'status-' + r.result_status">{{ r.result_status }}</span></td>
           <td style="white-space:nowrap">
-            <button class="btn btn-sm" (click)="saveResult(r)" [disabled]="r.result_status === 'verified'">Save</button>
+            <button class="btn btn-sm" (click)="saveResult(r)" [disabled]="r.result_status === 'verified' || !specimenReady(r)">Save</button>
             <button class="btn btn-sm btn-outline" *ngIf="r.result_id && r.result_status !== 'verified'" (click)="verify(r.result_id!)">Verify</button>
           </td>
         </tr>

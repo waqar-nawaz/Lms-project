@@ -9,13 +9,15 @@ router.use(requireAuth);
 // Worklist: all order items + parameters + existing results for an order
 router.get('/orders/:orderId', async (req, res) => {
   const { rows } = await query(
-    `SELECT oi.id AS order_item_id, t.name AS test_name, p.id AS parameter_id, p.name AS parameter_name,
+    `SELECT oi.id AS order_item_id, t.name AS test_name, t.specimen_type, p.id AS parameter_id, p.name AS parameter_name,
        p.unit, p.result_type, p.decimal_places,
-       r.id AS result_id, r.value, r.numeric_value, r.flag, r.result_status, r.entered_at, r.verified_at
+       r.id AS result_id, r.value, r.numeric_value, r.flag, r.result_status, r.entered_at, r.verified_at,
+       s.status AS specimen_status
      FROM order_items oi
      JOIN tests t ON t.id = oi.test_id
      JOIN test_parameters p ON p.test_id = t.id AND p.active = true
      LEFT JOIN results r ON r.order_item_id = oi.id AND r.parameter_id = p.id
+     LEFT JOIN specimens s ON s.order_id = oi.order_id AND s.specimen_type = t.specimen_type
      WHERE oi.order_id = $1
      ORDER BY t.name, p.display_order`,
     [req.params.orderId]
@@ -37,6 +39,25 @@ router.post('/', requireRole('lab_technician', 'lab_manager', 'super_admin'), as
     const paramRes = await client.query('SELECT * FROM test_parameters WHERE id = $1', [parameter_id]);
     const parameter = paramRes.rows[0];
     if (!parameter) throw new Error('Parameter not found');
+
+    const specimenRes = await client.query(
+      `SELECT s.status FROM order_items oi
+       JOIN tests t ON t.id = oi.test_id
+       LEFT JOIN specimens s ON s.order_id = oi.order_id AND s.specimen_type = t.specimen_type
+       WHERE oi.id = $1`,
+      [order_item_id]
+    );
+    const specimenStatus = specimenRes.rows[0]?.status;
+    if (!specimenStatus) {
+      throw new Error('No specimen has been generated for this test yet — generate and collect the specimen first.');
+    }
+    if (!['accepted', 'processing', 'completed'].includes(specimenStatus)) {
+      throw new Error(
+        specimenStatus === 'rejected'
+          ? 'This specimen was rejected — results cannot be entered until a new specimen is collected and accessioned.'
+          : 'Results cannot be entered until the specimen has been collected and accessioned by the lab.'
+      );
+    }
 
     const ctxRes = await client.query(
       `SELECT p.dob, p.gender FROM order_items oi JOIN orders o ON o.id = oi.order_id
