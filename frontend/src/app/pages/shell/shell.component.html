@@ -15,7 +15,9 @@
       <a routerLink="/samples" routerLinkActive="active">Samples</a>
       <a routerLink="/tests" routerLinkActive="active">Test Catalog</a>
       <a routerLink="/analytics" routerLinkActive="active">Reports &amp; Analytics</a>
-      <a routerLink="/admin/backup" routerLinkActive="active" *ngIf="auth.hasRole('super_admin')">Backup &amp; Restore</a>
+    </nav>
+    <nav class="settings-nav" *ngIf="auth.hasRole('super_admin')">
+      <a routerLink="/settings" routerLinkActive="active">⚙ Settings</a>
     </nav>
     <div class="user-box" *ngIf="auth.currentUser() as u">
       <div class="name">{{ u.name }}</div>

@@ -53,6 +53,13 @@
     }
   }
 
+  .settings-nav {
+    flex: 0 0 auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 0.75rem;
+    margin-top: 0.75rem;
+  }
+
   .user-box {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding-top: 1rem;

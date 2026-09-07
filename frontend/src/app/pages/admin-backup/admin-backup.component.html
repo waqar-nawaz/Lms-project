@@ -1,4 +1,4 @@
-<h1 class="page-title">Backup &amp; Restore</h1>
+<h1 class="page-title">Settings</h1>
 
 <div class="toast success" *ngIf="message">{{ message }}</div>
 <div class="toast error" *ngIf="error">{{ error }}</div>
@@ -39,5 +39,24 @@
       </button>
       <button class="btn btn-outline" (click)="cancelRestore()">Cancel</button>
     </div>
+  </div>
+</div>
+
+<div class="card danger-zone">
+  <h3 style="margin-top:0">Clear All Data</h3>
+  <p class="desc">
+    <strong>Warning:</strong> this permanently deletes all patients, orders, samples, results, reports,
+    invoices, and the test catalog. Staff accounts and login access are <strong>not</strong> affected —
+    everyone can still log in afterward, but the system will be empty. This cannot be undone.
+    Download a backup first if you might need this data again.
+  </p>
+
+  <label>Type <strong>CLEAR</strong> to confirm</label>
+  <input [(ngModel)]="clearConfirmText" placeholder="CLEAR" style="max-width:240px" />
+
+  <div class="toolbar" style="margin-top:1rem">
+    <button class="btn btn-danger" (click)="clearAllData()" [disabled]="clearing || clearConfirmText !== 'CLEAR'">
+      {{ clearing ? 'Clearing…' : 'Clear All Data' }}
+    </button>
   </div>
 </div>

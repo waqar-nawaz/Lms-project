@@ -104,6 +104,10 @@ table.data-table tr:hover td {
   background: #f7f9fb;
 }
 
+table.data-table td button + button {
+  margin-left: 0.5rem;
+}
+
 .badge {
   display: inline-block;
   padding: 0.15rem 0.55rem;

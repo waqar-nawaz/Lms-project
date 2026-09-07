@@ -16,7 +16,7 @@
       </select>
       <div class="field-error" *ngIf="submitted && !form.department_id">Department is required</div>
     </div>
-    <button class="btn-outline btn btn-sm dept-new-btn" type="button" (click)="showNewDept = !showNewDept">+ New Department</button>
+    <button class="btn-outline btn dept-new-btn" type="button" (click)="showNewDept = !showNewDept">+ New Department</button>
   </div>
 
   <div class="card" *ngIf="showNewDept" style="background:#f4f6f8;margin-top:0.75rem">

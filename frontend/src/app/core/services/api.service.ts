@@ -40,6 +40,9 @@ export class ApiService {
   restoreBackup(payload: any): Observable<any> {
     return this.http.post(`${base}/admin/restore`, payload);
   }
+  clearAllData(): Observable<any> {
+    return this.http.post(`${base}/admin/clear-data`, {});
+  }
   searchPatients(q: string): Observable<Patient[]> {
     return this.http.get<Patient[]>(`${base}/patients`, { params: q ? { q } : {} });
   }

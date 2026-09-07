@@ -27,8 +27,7 @@ router.get('/backup', requireRole('super_admin'), async (_req, res) => {
   res.send(JSON.stringify({ exportedAt: new Date().toISOString(), tables }));
 });
 
-router.post('/restore', requireRole('super_admin'), async (req, res) => {
-  const { tables } = req.body || {};
+router.post('/restore', requireRole('super_admin'), async (req, res) => {  const { tables } = req.body || {};
   if (!tables || typeof tables !== 'object') {
     return res.status(400).json({ error: 'Invalid backup file — expected a "tables" object.' });
   }
@@ -56,6 +55,31 @@ router.post('/restore', requireRole('super_admin'), async (req, res) => {
 
     await client.query('COMMIT');
     res.json({ restored: true, tableCounts: counts });
+  } catch (e: any) {
+    await client.query('ROLLBACK');
+    res.status(400).json({ error: e.message });
+  } finally {
+    client.release();
+  }
+});
+
+// Wipes all operational/clinical data but keeps organizations, branches, and user
+// accounts intact so staff can still log in afterward. Distinct from /restore,
+// which replaces everything including users.
+const CLEARABLE_TABLES = [
+  'result_versions', 'results', 'specimen_events', 'specimens', 'order_items', 'orders',
+  'payments', 'invoices', 'reports', 'package_tests', 'packages',
+  'reference_ranges', 'test_parameters', 'tests', 'doctors', 'departments', 'patients',
+  'audit_logs',
+];
+
+router.post('/clear-data', requireRole('super_admin'), async (_req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query(`TRUNCATE TABLE ${CLEARABLE_TABLES.join(', ')} RESTART IDENTITY CASCADE`);
+    await client.query('COMMIT');
+    res.json({ cleared: true, tables: CLEARABLE_TABLES });
   } catch (e: any) {
     await client.query('ROLLBACK');
     res.status(400).json({ error: e.message });

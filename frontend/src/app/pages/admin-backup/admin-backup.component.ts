@@ -101,4 +101,25 @@ export class AdminBackupComponent {
     this.confirmText = '';
     this.parseError = '';
   }
+
+  clearConfirmText = '';
+  clearing = false;
+
+  clearAllData() {
+    if (this.clearConfirmText !== 'CLEAR') return;
+    this.clearing = true;
+    this.message = '';
+    this.error = '';
+    this.api.clearAllData().subscribe({
+      next: () => {
+        this.clearing = false;
+        this.message = 'All operational data has been cleared. Staff accounts are unaffected.';
+        this.clearConfirmText = '';
+      },
+      error: (err) => {
+        this.clearing = false;
+        this.error = err.error?.error || 'Failed to clear data.';
+      },
+    });
+  }
 }
