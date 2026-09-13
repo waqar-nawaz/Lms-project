@@ -1,0 +1,73 @@
+<h1 class="page-title">Staff Accounts</h1>
+
+<div class="toolbar">
+  <button class="btn" (click)="openForm()">+ New Staff Account</button>
+</div>
+
+<div class="card" *ngIf="showForm">
+  <h3 style="margin-top:0">{{ editingId ? 'Edit Staff Account' : 'New Staff Account' }}</h3>
+
+  <div class="field-row">
+    <div>
+      <label>Name <span class="required-mark">*</span></label>
+      <input [(ngModel)]="form.name" [class.invalid]="submitted && !form.name" />
+    </div>
+    <div>
+      <label>Email <span class="required-mark">*</span></label>
+      <input type="email" [(ngModel)]="form.email" [disabled]="!!editingId" [class.invalid]="submitted && !form.email" />
+    </div>
+    <div>
+      <label>Phone</label>
+      <input [(ngModel)]="form.phone" />
+    </div>
+  </div>
+
+  <div class="field-row" style="margin-top:0.75rem">
+    <div>
+      <label>Role <span class="required-mark">*</span></label>
+      <select [(ngModel)]="form.role">
+        <option *ngFor="let r of roles" [value]="r">{{ r.replace('_',' ') }}</option>
+      </select>
+    </div>
+    <div>
+      <label>{{ editingId ? 'New Password (leave blank to keep current)' : 'Password' }} <span class="required-mark" *ngIf="!editingId">*</span></label>
+      <input type="password" [(ngModel)]="form.password" [class.invalid]="submitted && !editingId && !form.password" />
+    </div>
+    <div *ngIf="editingId">
+      <label>Status</label>
+      <select [(ngModel)]="form.active">
+        <option [ngValue]="true">Active</option>
+        <option [ngValue]="false">Inactive</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="field-error" *ngIf="error">{{ error }}</div>
+
+  <div class="toolbar" style="margin-top:1rem">
+    <button class="btn" (click)="submit()" [disabled]="saving">{{ saving ? 'Saving…' : (editingId ? 'Update Account' : 'Create Account') }}</button>
+    <button class="btn btn-outline" (click)="showForm = false">Cancel</button>
+  </div>
+</div>
+
+<div class="card">
+  <table class="data-table">
+    <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Last Login</th><th></th></tr></thead>
+    <tbody>
+      <tr *ngFor="let u of users">
+        <td>{{ u.name }}</td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.role.replace('_',' ') }}</td>
+        <td><span class="badge" [class.status-completed]="u.active" [class.status-rejected]="!u.active">{{ u.active ? 'Active' : 'Inactive' }}</span></td>
+        <td>{{ u.last_login_at ? (u.last_login_at | date:'short') : 'Never' }}</td>
+        <td style="white-space:nowrap">
+          <button class="btn btn-sm btn-outline" (click)="openEditForm(u)">Edit</button>
+          <button class="btn btn-sm" [class.btn-danger]="u.active" (click)="toggleActive(u)" [disabled]="u.id === auth.currentUser()?.id">
+            {{ u.active ? 'Deactivate' : 'Reactivate' }}
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="empty-state" *ngIf="!users.length">No staff accounts yet.</div>
+</div>

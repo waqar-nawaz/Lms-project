@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { query, pool } from '../db/pool';
 import { requireAuth, requireRole, AuthedRequest } from '../middleware/auth';
 import { calculateAge, pickReferenceRange, flagForNumeric, isCriticalFlag } from '../helpers/resultLogic';
+import { logAudit } from '../helpers/audit';
+import { notifyRoles } from '../helpers/notifications';
 
 const router = Router();
 router.use(requireAuth);
@@ -12,6 +14,7 @@ router.get('/orders/:orderId', async (req, res) => {
     `SELECT oi.id AS order_item_id, t.name AS test_name, t.specimen_type, p.id AS parameter_id, p.name AS parameter_name,
        p.unit, p.result_type, p.decimal_places,
        r.id AS result_id, r.value, r.numeric_value, r.flag, r.result_status, r.entered_at, r.verified_at,
+       r.critical_ack_by, r.critical_ack_at,
        s.status AS specimen_status
      FROM order_items oi
      JOIN tests t ON t.id = oi.test_id
@@ -106,6 +109,19 @@ router.post('/', requireRole('lab_technician', 'lab_manager', 'super_admin'), as
          VALUES ($1,$2,$3,$4,$5)`,
         [prev.id, prev.value, String(value), amendment_reason || 'initial correction', req.user!.id]
       );
+      if (amendment_reason) {
+        await logAudit(
+          {
+            userId: req.user!.id,
+            action: 'amend',
+            entityType: 'result',
+            entityId: prev.id,
+            oldValues: { value: prev.value },
+            newValues: { value: String(value), reason: amendment_reason },
+          },
+          client
+        );
+      }
     } else {
       const { rows } = await client.query(
         `INSERT INTO results (order_item_id, parameter_id, value, numeric_value, unit, flag, result_status, entered_by, entered_at)
@@ -113,6 +129,29 @@ router.post('/', requireRole('lab_technician', 'lab_manager', 'super_admin'), as
         [order_item_id, parameter_id, String(value), numericValue, parameter.unit, flag, req.user!.id]
       );
       result = rows[0];
+    }
+
+    if (isCriticalFlag(flag)) {
+      const ctxRes2 = await client.query(
+        `SELECT o.branch_id, o.order_number, p.first_name, p.last_name, t.name AS test_name
+         FROM order_items oi
+         JOIN orders o ON o.id = oi.order_id
+         JOIN patients p ON p.id = o.patient_id
+         JOIN tests t ON t.id = oi.test_id
+         WHERE oi.id = $1`,
+        [order_item_id]
+      );
+      const info = ctxRes2.rows[0];
+      if (info) {
+        await notifyRoles(client, {
+          branchId: info.branch_id,
+          roles: ['pathologist', 'lab_manager', 'super_admin'],
+          type: 'critical_result',
+          message: `Critical ${parameter.name} result for ${info.first_name} ${info.last_name || ''} (${info.test_name}, order ${info.order_number}) — needs acknowledgment.`,
+          entityType: 'result',
+          entityId: result.id,
+        });
+      }
     }
 
     await client.query('COMMIT');
@@ -125,11 +164,29 @@ router.post('/', requireRole('lab_technician', 'lab_manager', 'super_admin'), as
   }
 });
 
+// Acknowledge a critical result — must happen before it can be verified.
+router.patch('/:id/acknowledge-critical', requireRole('pathologist', 'lab_manager', 'super_admin'), async (req: AuthedRequest, res) => {
+  const { rows } = await query(
+    `UPDATE results SET critical_ack_by = $1, critical_ack_at = now()
+     WHERE id = $2 AND flag IN ('critical_low','critical_high') RETURNING *`,
+    [req.user!.id, req.params.id]
+  );
+  if (!rows[0]) return res.status(404).json({ error: 'Not found, or this result is not flagged critical' });
+  res.json(rows[0]);
+});
+
 // Verify a result (pathologist / medical reviewer)
 router.patch('/:id/verify', requireRole('pathologist', 'lab_manager', 'super_admin'), async (req: AuthedRequest, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+
+    const existing = await client.query('SELECT * FROM results WHERE id = $1', [req.params.id]);
+    if (!existing.rows[0]) throw new Error('Result not found');
+    if (['critical_low', 'critical_high'].includes(existing.rows[0].flag) && !existing.rows[0].critical_ack_by) {
+      throw new Error('This is a critical value — acknowledge it before verifying.');
+    }
+
     const { rows } = await client.query(
       `UPDATE results SET result_status = 'verified', verified_by = $1, verified_at = now()
        WHERE id = $2 RETURNING *`,

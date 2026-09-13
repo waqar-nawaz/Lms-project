@@ -27,7 +27,10 @@ export interface Doctor {
   id: string;
   name: string;
   specialty?: string;
+  license_number?: string;
   phone?: string;
+  email?: string;
+  active?: boolean;
 }
 
 export interface TestParameter {
@@ -106,6 +109,7 @@ export interface ResultRow {
   value?: string;
   flag?: string;
   result_status?: string;
+  critical_ack_by?: string;
 }
 
 export interface Invoice {

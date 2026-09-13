@@ -127,6 +127,17 @@ export class OrderDetailComponent implements OnInit {
     });
   }
 
+  acknowledge(resultId: string) {
+    this.api.acknowledgeCritical(resultId).subscribe({
+      next: () => { this.flash('Critical value acknowledged'); this.loadAll(); },
+      error: (e) => this.showError(e),
+    });
+  }
+
+  isCritical(row: ResultRow): boolean {
+    return row.flag === 'critical_low' || row.flag === 'critical_high';
+  }
+
   specimenReady(row: ResultRow): boolean {
     return ['accepted', 'processing', 'completed'].includes(row.specimen_status || '');
   }

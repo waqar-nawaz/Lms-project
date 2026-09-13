@@ -1,5 +1,10 @@
 <h1 class="page-title">Settings</h1>
 
+<div class="toolbar">
+  <a routerLink="/settings/users" class="btn btn-outline btn-sm">Staff Accounts</a>
+  <a routerLink="/settings/audit-log" class="btn btn-outline btn-sm">Audit Log</a>
+</div>
+
 <div class="toast success" *ngIf="message">{{ message }}</div>
 <div class="toast error" *ngIf="error">{{ error }}</div>
 

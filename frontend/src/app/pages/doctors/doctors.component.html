@@ -1,0 +1,56 @@
+<h1 class="page-title">Doctors</h1>
+
+<div class="toolbar">
+  <button class="btn" (click)="openForm()">+ New Doctor</button>
+</div>
+
+<div class="card" *ngIf="showForm">
+  <h3 style="margin-top:0">{{ editingId ? 'Edit Doctor' : 'New Doctor' }}</h3>
+
+  <div class="field-row">
+    <div>
+      <label>Name <span class="required-mark">*</span></label>
+      <input [(ngModel)]="form.name" [class.invalid]="submitted && !form.name" />
+      <div class="field-error" *ngIf="submitted && !form.name">Name is required</div>
+    </div>
+    <div><label>Specialty</label><input [(ngModel)]="form.specialty" /></div>
+    <div><label>License number</label><input [(ngModel)]="form.license_number" /></div>
+  </div>
+  <div class="field-row" style="margin-top:0.75rem">
+    <div><label>Phone</label><input [(ngModel)]="form.phone" /></div>
+    <div><label>Email</label><input type="email" [(ngModel)]="form.email" /></div>
+    <div *ngIf="editingId">
+      <label>Status</label>
+      <select [(ngModel)]="form.active">
+        <option [ngValue]="true">Active</option>
+        <option [ngValue]="false">Inactive</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="field-error" *ngIf="error">{{ error }}</div>
+
+  <div class="toolbar" style="margin-top:1rem">
+    <button class="btn" (click)="submit()" [disabled]="saving">{{ saving ? 'Saving…' : (editingId ? 'Update Doctor' : 'Save Doctor') }}</button>
+    <button class="btn btn-outline" (click)="showForm = false">Cancel</button>
+  </div>
+</div>
+
+<div class="card">
+  <table class="data-table">
+    <thead><tr><th>Name</th><th>Specialty</th><th>Phone</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      <tr *ngFor="let d of doctors">
+        <td>{{ d.name }}</td>
+        <td>{{ d.specialty || '-' }}</td>
+        <td>{{ d.phone || '-' }}</td>
+        <td><span class="badge" [class.status-completed]="d.active" [class.status-rejected]="!d.active">{{ d.active ? 'Active' : 'Inactive' }}</span></td>
+        <td style="white-space:nowrap">
+          <button class="btn btn-sm btn-outline" (click)="openEditForm(d)">Edit</button>
+          <button class="btn btn-sm" [class.btn-danger]="d.active" (click)="toggleActive(d)">{{ d.active ? 'Deactivate' : 'Reactivate' }}</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="empty-state" *ngIf="!doctors.length">No doctors yet.</div>
+</div>

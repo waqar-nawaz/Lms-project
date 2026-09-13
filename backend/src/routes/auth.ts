@@ -2,6 +2,7 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { query } from '../db/pool';
 import { signToken } from '../middleware/auth';
+import { logAudit } from '../helpers/audit';
 
 const router = Router();
 
@@ -17,6 +18,7 @@ router.post('/login', async (req, res) => {
   if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
 
   await query('UPDATE users SET last_login_at = now() WHERE id = $1', [user.id]);
+  await logAudit({ userId: user.id, branchId: user.branch_id, action: 'login', entityType: 'session' });
 
   const token = signToken({ id: user.id, role: user.role, branchId: user.branch_id, name: user.name });
   res.json({

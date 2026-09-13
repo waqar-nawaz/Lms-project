@@ -1,0 +1,24 @@
+<div class="toolbar" style="justify-content:space-between">
+  <h1 class="page-title" style="margin:0">Notifications</h1>
+  <button class="btn btn-sm btn-outline" (click)="markAllRead()" *ngIf="notifications.length">Mark all read</button>
+</div>
+
+<div class="card">
+  <div class="notif-list" *ngIf="notifications.length; else empty">
+    <div
+      class="notif-item"
+      *ngFor="let n of notifications"
+      [class.unread]="!n.is_read"
+      (click)="open(n)"
+    >
+      <div class="notif-dot" [class]="'type-' + n.type"></div>
+      <div class="notif-body">
+        <div class="notif-message">{{ n.message }}</div>
+        <div class="notif-time">{{ n.created_at | date:'medium' }}</div>
+      </div>
+    </div>
+  </div>
+  <ng-template #empty>
+    <div class="empty-state">No notifications yet.</div>
+  </ng-template>
+</div>

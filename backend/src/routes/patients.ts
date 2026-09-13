@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { query } from '../db/pool';
 import { requireAuth, AuthedRequest } from '../middleware/auth';
+import { logAudit } from '../helpers/audit';
 
 const router = Router();
 router.use(requireAuth);
@@ -89,7 +90,7 @@ router.post('/', async (req: AuthedRequest, res) => {
   res.status(201).json({ patient: rows[0], possible_duplicates: duplicates });
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', async (req: AuthedRequest, res) => {
   const fields = [
     'first_name', 'middle_name', 'last_name', 'dob', 'gender', 'identity_number',
     'phone', 'email', 'address', 'city', 'emergency_contact', 'blood_group', 'notes',
@@ -103,12 +104,26 @@ router.put('/:id', async (req, res) => {
     }
   });
   if (!updates.length) return res.status(400).json({ error: 'No fields to update' });
+
+  const before = await query('SELECT * FROM patients WHERE id = $1', [req.params.id]);
+  if (!before.rows[0]) return res.status(404).json({ error: 'Not found' });
+
   values.push(req.params.id);
   const { rows } = await query(
     `UPDATE patients SET ${updates.join(', ')}, updated_at = now() WHERE id = $${values.length} RETURNING *`,
     values
   );
-  if (!rows[0]) return res.status(404).json({ error: 'Not found' });
+
+  await logAudit({
+    userId: req.user!.id,
+    branchId: req.user!.branchId,
+    action: 'update',
+    entityType: 'patient',
+    entityId: req.params.id,
+    oldValues: before.rows[0],
+    newValues: req.body,
+  });
+
   res.json(rows[0]);
 });
 

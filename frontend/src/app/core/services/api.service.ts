@@ -43,6 +43,39 @@ export class ApiService {
   clearAllData(): Observable<any> {
     return this.http.post(`${base}/admin/clear-data`, {});
   }
+  getAuditLogs(): Observable<any[]> {
+    return this.http.get<any[]>(`${base}/admin/audit-logs`);
+  }
+
+  // Notifications
+  getNotifications(): Observable<any[]> {
+    return this.http.get<any[]>(`${base}/notifications`);
+  }
+  getUnreadNotificationCount(): Observable<{ count: number }> {
+    return this.http.get<{ count: number }>(`${base}/notifications/unread-count`);
+  }
+  markNotificationRead(id: string): Observable<any> {
+    return this.http.patch(`${base}/notifications/${id}/read`, {});
+  }
+  markAllNotificationsRead(): Observable<any> {
+    return this.http.patch(`${base}/notifications/read-all`, {});
+  }
+
+  // Users (staff accounts)
+  getUsers(): Observable<any[]> {
+    return this.http.get<any[]>(`${base}/users`);
+  }
+  createUser(payload: any): Observable<any> {
+    return this.http.post(`${base}/users`, payload);
+  }
+  updateUser(id: string, payload: any): Observable<any> {
+    return this.http.put(`${base}/users/${id}`, payload);
+  }
+
+  // Results: critical acknowledgment
+  acknowledgeCritical(resultId: string): Observable<any> {
+    return this.http.patch(`${base}/results/${resultId}/acknowledge-critical`, {});
+  }
   searchPatients(q: string): Observable<Patient[]> {
     return this.http.get<Patient[]>(`${base}/patients`, { params: q ? { q } : {} });
   }
@@ -60,11 +93,14 @@ export class ApiService {
   }
 
   // Doctors
-  getDoctors(): Observable<Doctor[]> {
-    return this.http.get<Doctor[]>(`${base}/doctors`);
+  getDoctors(all = false): Observable<Doctor[]> {
+    return this.http.get<Doctor[]>(`${base}/doctors`, { params: all ? { all: 'true' } : {} });
   }
   createDoctor(payload: Partial<Doctor>): Observable<Doctor> {
     return this.http.post<Doctor>(`${base}/doctors`, payload);
+  }
+  updateDoctor(id: string, payload: Partial<Doctor>): Observable<Doctor> {
+    return this.http.put<Doctor>(`${base}/doctors/${id}`, payload);
   }
 
   // Catalog

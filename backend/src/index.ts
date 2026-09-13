@@ -16,6 +16,8 @@ import dashboardRoutes from './routes/dashboard';
 import analyticsRoutes from './routes/analytics';
 import patientPortalRoutes from './routes/patientPortal';
 import adminRoutes from './routes/admin';
+import notificationRoutes from './routes/notifications';
+import userRoutes from './routes/users';
 
 const app = express();
 app.use(cors());
@@ -36,6 +38,8 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/patient-portal', patientPortalRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/users', userRoutes);
 
 const port = process.env.PORT || 4000;
 app.listen(port, () => console.log(`LMS backend listening on port ${port}`));

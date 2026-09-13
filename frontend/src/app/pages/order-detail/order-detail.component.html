@@ -76,7 +76,8 @@
           <td><span class="badge" *ngIf="r.result_status" [class]="'status-' + r.result_status">{{ r.result_status }}</span></td>
           <td style="white-space:nowrap">
             <button class="btn btn-sm" (click)="saveResult(r)" [disabled]="r.result_status === 'verified' || !specimenReady(r)">Save</button>
-            <button class="btn btn-sm btn-outline" *ngIf="r.result_id && r.result_status !== 'verified'" (click)="verify(r.result_id!)">Verify</button>
+            <button class="btn btn-sm btn-danger" *ngIf="isCritical(r) && !r.critical_ack_by && r.result_id" (click)="acknowledge(r.result_id!)">Acknowledge Critical</button>
+            <button class="btn btn-sm btn-outline" *ngIf="r.result_id && r.result_status !== 'verified' && !(isCritical(r) && !r.critical_ack_by)" (click)="verify(r.result_id!)">Verify</button>
           </td>
         </tr>
       </tbody>

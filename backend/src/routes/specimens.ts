@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { query, pool } from '../db/pool';
 import { requireAuth, requireRole, AuthedRequest } from '../middleware/auth';
 import { generateBarcode } from '../helpers/numbering';
+import { notifyRoles } from '../helpers/notifications';
 
 const router = Router();
 router.use(requireAuth);
@@ -139,16 +140,45 @@ router.patch('/:id/reject', requireRole('lab_technician', 'lab_manager', 'super_
   if (!REJECTION_REASONS.includes(reason)) {
     return res.status(400).json({ error: `reason must be one of: ${REJECTION_REASONS.join(', ')}` });
   }
-  const { rows } = await query(
-    `UPDATE specimens SET status = 'rejected', rejection_reason = $1 WHERE id = $2 RETURNING *`,
-    [reason, req.params.id]
-  );
-  if (!rows[0]) return res.status(404).json({ error: 'Not found' });
-  await query(
-    `INSERT INTO specimen_events (specimen_id, event_type, status, performed_by, notes) VALUES ($1,'rejected','rejected',$2,$3)`,
-    [req.params.id, req.user!.id, reason]
-  );
-  res.json(rows[0]);
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const { rows } = await client.query(
+      `UPDATE specimens SET status = 'rejected', rejection_reason = $1 WHERE id = $2 RETURNING *`,
+      [reason, req.params.id]
+    );
+    if (!rows[0]) throw new Error('Not found');
+    await client.query(
+      `INSERT INTO specimen_events (specimen_id, event_type, status, performed_by, notes) VALUES ($1,'rejected','rejected',$2,$3)`,
+      [req.params.id, req.user!.id, reason]
+    );
+
+    const orderRes = await client.query(
+      `SELECT o.branch_id, o.order_number, p.first_name, p.last_name
+       FROM specimens s JOIN orders o ON o.id = s.order_id JOIN patients p ON p.id = s.patient_id
+       WHERE s.id = $1`,
+      [req.params.id]
+    );
+    const info = orderRes.rows[0];
+    if (info) {
+      await notifyRoles(client, {
+        branchId: info.branch_id,
+        roles: ['receptionist', 'phlebotomist', 'lab_manager', 'super_admin'],
+        type: 'specimen_rejected',
+        message: `Specimen for ${info.first_name} ${info.last_name || ''} (order ${info.order_number}) rejected: ${reason.replace(/_/g, ' ')} — recollection needed.`,
+        entityType: 'specimen',
+        entityId: req.params.id,
+      });
+    }
+
+    await client.query('COMMIT');
+    res.json(rows[0]);
+  } catch (e: any) {
+    await client.query('ROLLBACK');
+    res.status(e.message === 'Not found' ? 404 : 400).json({ error: e.message });
+  } finally {
+    client.release();
+  }
 });
 
 export default router;

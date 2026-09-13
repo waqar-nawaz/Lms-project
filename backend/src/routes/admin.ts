@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { pool, query } from '../db/pool';
-import { requireAuth, requireRole } from '../middleware/auth';
+import { requireAuth, requireRole, AuthedRequest } from '../middleware/auth';
+import { logAudit } from '../helpers/audit';
 
 const router = Router();
 router.use(requireAuth);
@@ -27,7 +28,8 @@ router.get('/backup', requireRole('super_admin'), async (_req, res) => {
   res.send(JSON.stringify({ exportedAt: new Date().toISOString(), tables }));
 });
 
-router.post('/restore', requireRole('super_admin'), async (req, res) => {  const { tables } = req.body || {};
+router.post('/restore', requireRole('super_admin'), async (req: AuthedRequest, res) => {
+  const { tables } = req.body || {};
   if (!tables || typeof tables !== 'object') {
     return res.status(400).json({ error: 'Invalid backup file — expected a "tables" object.' });
   }
@@ -54,6 +56,13 @@ router.post('/restore', requireRole('super_admin'), async (req, res) => {  const
     }
 
     await client.query('COMMIT');
+    await logAudit({
+      userId: req.user!.id,
+      branchId: req.user!.branchId,
+      action: 'restore',
+      entityType: 'database',
+      newValues: counts,
+    });
     res.json({ restored: true, tableCounts: counts });
   } catch (e: any) {
     await client.query('ROLLBACK');
@@ -73,12 +82,18 @@ const CLEARABLE_TABLES = [
   'audit_logs',
 ];
 
-router.post('/clear-data', requireRole('super_admin'), async (_req, res) => {
+router.post('/clear-data', requireRole('super_admin'), async (req: AuthedRequest, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
     await client.query(`TRUNCATE TABLE ${CLEARABLE_TABLES.join(', ')} RESTART IDENTITY CASCADE`);
     await client.query('COMMIT');
+    await logAudit({
+      userId: req.user!.id,
+      branchId: req.user!.branchId,
+      action: 'clear_data',
+      entityType: 'database',
+    });
     res.json({ cleared: true, tables: CLEARABLE_TABLES });
   } catch (e: any) {
     await client.query('ROLLBACK');
@@ -86,6 +101,17 @@ router.post('/clear-data', requireRole('super_admin'), async (_req, res) => {
   } finally {
     client.release();
   }
+});
+
+router.get('/audit-logs', requireRole('super_admin'), async (_req, res) => {
+  const { rows } = await query(
+    `SELECT a.id, a.action, a.entity_type, a.entity_id, a.old_values, a.new_values, a.created_at,
+       u.name AS user_name, u.email AS user_email
+     FROM audit_logs a
+     LEFT JOIN users u ON u.id = a.user_id
+     ORDER BY a.created_at DESC LIMIT 200`
+  );
+  res.json(rows);
 });
 
 export default router;

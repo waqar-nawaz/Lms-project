@@ -1,8 +1,9 @@
-import { Component, HostListener, signal } from '@angular/core';
+import { Component, HostListener, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavigationStart, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ThemeService } from '../../core/services/theme.service';
+import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-shell',
@@ -11,15 +12,24 @@ import { ThemeService } from '../../core/services/theme.service';
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
 })
-export class ShellComponent {
+export class ShellComponent implements OnInit {
   menuOpen = false;
   collapsed = signal(localStorage.getItem('lms_sidebar_collapsed') === 'true');
   isMobile = signal(typeof window !== 'undefined' && window.innerWidth <= 860);
 
-  constructor(public auth: AuthService, public theme: ThemeService, private router: Router) {
+  constructor(
+    public auth: AuthService,
+    public theme: ThemeService,
+    public notif: NotificationService,
+    private router: Router
+  ) {
     this.router.events.subscribe((e) => {
       if (e instanceof NavigationStart) this.menuOpen = false;
     });
+  }
+
+  ngOnInit() {
+    this.notif.startPolling();
   }
 
   @HostListener('window:resize')
@@ -27,9 +37,6 @@ export class ShellComponent {
     this.isMobile.set(window.innerWidth <= 860);
   }
 
-  // The desktop icon-only collapse mode should never apply on mobile —
-  // the mobile drawer always shows full labels regardless of the
-  // desktop collapse preference saved in localStorage.
   isIconOnly(): boolean {
     return this.collapsed() && !this.isMobile();
   }
