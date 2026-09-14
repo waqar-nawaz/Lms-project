@@ -69,7 +69,7 @@
               [class.invalid]="resultErrors[r.parameter_id]"
               [disabled]="r.result_status === 'verified' || !specimenReady(r)" />
             <div class="field-error" *ngIf="resultErrors[r.parameter_id]">{{ resultErrors[r.parameter_id] }}</div>
-            <div class="field-error" *ngIf="!specimenReady(r) && r.result_status !== 'verified'">{{ specimenBlockReason(r) }}</div>
+            <div class="field-note" *ngIf="!specimenReady(r) && r.result_status !== 'verified'">{{ specimenBlockReason(r) }}</div>
           </td>
           <td>{{ r.unit || '-' }}</td>
           <td><span class="badge" *ngIf="r.flag" [class]="'status-' + r.flag">{{ r.flag.replace('_',' ') }}</span></td>

@@ -214,6 +214,13 @@ table.data-table td button + button {
   margin-top: 0.2rem;
 }
 
+.field-note {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  margin-top: 0.2rem;
+  font-style: italic;
+}
+
 .required-mark {
   color: #c0392b;
 }
