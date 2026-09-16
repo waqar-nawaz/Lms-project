@@ -47,14 +47,32 @@ router.get('/:id', async (req, res) => {
 
 // Create order: { patient_id, doctor_id?, priority?, notes?, test_ids: [], discount?, tax? }
 router.post('/', async (req: AuthedRequest, res) => {
-  const { patient_id, doctor_id, priority, notes, test_ids, discount, tax, source } = req.body;
-  if (!patient_id || !Array.isArray(test_ids) || test_ids.length === 0) {
-    return res.status(400).json({ error: 'patient_id and non-empty test_ids are required' });
+  const { patient_id, doctor_id, priority, notes, discount, tax, source } = req.body;
+  let { test_ids } = req.body;
+  const { package_ids } = req.body;
+  test_ids = Array.isArray(test_ids) ? [...test_ids] : [];
+
+  if (!patient_id) {
+    return res.status(400).json({ error: 'patient_id is required' });
   }
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+
+    if (Array.isArray(package_ids) && package_ids.length) {
+      const pkgTestsRes = await client.query(
+        `SELECT DISTINCT test_id FROM package_tests WHERE package_id = ANY($1::uuid[])`,
+        [package_ids]
+      );
+      for (const row of pkgTestsRes.rows) {
+        if (!test_ids.includes(row.test_id)) test_ids.push(row.test_id);
+      }
+    }
+
+    if (!test_ids.length) {
+      throw new Error('Select at least one test or package');
+    }
 
     const testsRes = await client.query(
       `SELECT id, price FROM tests WHERE id = ANY($1::uuid[]) AND active = true`,

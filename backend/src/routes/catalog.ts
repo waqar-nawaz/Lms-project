@@ -24,6 +24,22 @@ router.post('/departments', requireRole('super_admin', 'lab_manager'), async (re
   res.status(201).json(rows[0]);
 });
 
+router.put('/departments/:id', requireRole('super_admin', 'lab_manager'), async (req, res) => {
+  const { name, code, active } = req.body;
+  if (!name || !code) return res.status(400).json({ error: 'name and code required' });
+  const { rows } = await query(
+    'UPDATE departments SET name=$1, code=$2, active=$3 WHERE id=$4 RETURNING *',
+    [name, code, active ?? true, req.params.id]
+  );
+  if (!rows[0]) return res.status(404).json({ error: 'Not found' });
+  res.json(rows[0]);
+});
+
+router.get('/departments/all', requireRole('super_admin', 'lab_manager'), async (req: AuthedRequest, res) => {
+  const { rows } = await query('SELECT * FROM departments WHERE branch_id = $1 ORDER BY name', [req.user!.branchId]);
+  res.json(rows);
+});
+
 // --- Tests (with parameters) ---
 router.get('/tests', async (req, res) => {
   const { rows } = await query(
@@ -91,6 +107,54 @@ router.put('/tests/:id', requireRole('super_admin', 'lab_manager'), async (req, 
       tat_minutes || null, price || 0, active ?? true, req.params.id]
   );
   if (!rows[0]) return res.status(404).json({ error: 'Not found' });
+  res.json(rows[0]);
+});
+
+// --- Packages (bundles of tests, e.g. "Full Body Checkup") ---
+router.get('/packages', async (_req, res) => {
+  const { rows } = await query(
+    `SELECT pk.*, COALESCE(json_agg(jsonb_build_object('id', t.id, 'name', t.name, 'price', t.price))
+       FILTER (WHERE t.id IS NOT NULL), '[]') AS tests
+     FROM packages pk
+     LEFT JOIN package_tests pt ON pt.package_id = pk.id
+     LEFT JOIN tests t ON t.id = pt.test_id
+     WHERE pk.active = true
+     GROUP BY pk.id
+     ORDER BY pk.name`
+  );
+  res.json(rows);
+});
+
+router.post('/packages', requireRole('super_admin', 'lab_manager'), async (req, res) => {
+  const { name, price, test_ids } = req.body;
+  if (!name || !Array.isArray(test_ids) || !test_ids.length) {
+    return res.status(400).json({ error: 'name and at least one test are required' });
+  }
+  const { rows } = await query(
+    `INSERT INTO packages (code, name, price) VALUES ($1,$2,$3) RETURNING *`,
+    [name.toUpperCase().replace(/\s+/g, '_').slice(0, 20) + '_' + Date.now().toString(36), name, price || 0]
+  );
+  const pkg = rows[0];
+  for (const testId of test_ids) {
+    await query('INSERT INTO package_tests (package_id, test_id) VALUES ($1,$2)', [pkg.id, testId]);
+  }
+  res.status(201).json(pkg);
+});
+
+router.put('/packages/:id', requireRole('super_admin', 'lab_manager'), async (req, res) => {
+  const { name, price, test_ids, active } = req.body;
+  if (!name) return res.status(400).json({ error: 'name is required' });
+  const { rows } = await query(
+    'UPDATE packages SET name=$1, price=$2, active=$3 WHERE id=$4 RETURNING *',
+    [name, price || 0, active ?? true, req.params.id]
+  );
+  if (!rows[0]) return res.status(404).json({ error: 'Not found' });
+  if (Array.isArray(test_ids)) {
+    await query('DELETE FROM package_tests WHERE package_id = $1', [req.params.id]);
+    for (const testId of test_ids) {
+      await query('INSERT INTO package_tests (package_id, test_id) VALUES ($1,$2)', [req.params.id, testId]);
+    }
+  }
   res.json(rows[0]);
 });
 

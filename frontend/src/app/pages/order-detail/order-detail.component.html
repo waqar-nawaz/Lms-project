@@ -35,6 +35,7 @@
             <button class="btn btn-sm" *ngIf="s.status === 'awaiting_collection'" (click)="collect(s.id)">Collect</button>
             <button class="btn btn-sm" *ngIf="s.status === 'collected'" (click)="receive(s.id)">Accession</button>
             <button class="btn btn-sm btn-danger" *ngIf="s.status === 'collected'" (click)="openReject(s.id)">Reject</button>
+            <button class="btn btn-sm" *ngIf="s.status === 'rejected'" (click)="redraw(s.id)">Redraw</button>
           </td>
         </tr>
       </tbody>
@@ -78,6 +79,7 @@
             <button class="btn btn-sm" (click)="saveResult(r)" [disabled]="r.result_status === 'verified' || !specimenReady(r)">Save</button>
             <button class="btn btn-sm btn-danger" *ngIf="isCritical(r) && !r.critical_ack_by && r.result_id" (click)="acknowledge(r.result_id!)">Acknowledge Critical</button>
             <button class="btn btn-sm btn-outline" *ngIf="r.result_id && r.result_status !== 'verified' && !(isCritical(r) && !r.critical_ack_by)" (click)="verify(r.result_id!)">Verify</button>
+            <button class="btn btn-sm btn-outline" *ngIf="r.result_id" (click)="viewHistory(r.result_id!)">History</button>
           </td>
         </tr>
       </tbody>
@@ -140,3 +142,26 @@
     <div class="empty-state" *ngIf="!reports.length">No reports generated yet — verify all results first.</div>
   </div>
 </ng-container>
+
+<!-- Result amendment history modal -->
+<div class="modal-backdrop" *ngIf="historyFor" (click)="closeHistory()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="toolbar" style="justify-content:space-between">
+      <h3 style="margin:0">Amendment History</h3>
+      <button class="btn btn-sm btn-outline" (click)="closeHistory()">Close</button>
+    </div>
+    <table class="data-table" *ngIf="historyRows.length">
+      <thead><tr><th>When</th><th>By</th><th>Old Value</th><th>New Value</th><th>Reason</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let h of historyRows">
+          <td>{{ h.changed_at | date:'short' }}</td>
+          <td>{{ h.changed_by_name }}</td>
+          <td>{{ h.old_value }}</td>
+          <td>{{ h.new_value }}</td>
+          <td>{{ h.reason }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="empty-state" *ngIf="!historyRows.length">No amendments have been made to this result.</div>
+  </div>
+</div>

@@ -1,0 +1,68 @@
+<h1 class="page-title">Test Packages</h1>
+
+<div class="toolbar">
+  <button class="btn" (click)="openForm()">+ New Package</button>
+</div>
+
+<div class="card" *ngIf="showForm">
+  <h3 style="margin-top:0">{{ editingId ? 'Edit Package' : 'New Package' }}</h3>
+
+  <div class="field-row">
+    <div>
+      <label>Package name <span class="required-mark">*</span></label>
+      <input [(ngModel)]="form.name" placeholder="e.g. Full Body Checkup" [class.invalid]="submitted && !form.name" />
+    </div>
+    <div>
+      <label>Package price (PKR) <span class="required-mark">*</span></label>
+      <input type="number" [(ngModel)]="form.price" />
+    </div>
+    <div *ngIf="editingId">
+      <label>Status</label>
+      <select [(ngModel)]="form.active">
+        <option [ngValue]="true">Active</option>
+        <option [ngValue]="false">Inactive</option>
+      </select>
+    </div>
+  </div>
+
+  <h4 style="margin-top:1rem">Included tests</h4>
+  <table class="data-table">
+    <thead><tr><th></th><th>Test</th><th>List Price</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let t of tests">
+        <td><input type="checkbox" [checked]="selectedTestIds.has(t.id)" (change)="toggleTest(t.id)" /></td>
+        <td>{{ t.name }}</td>
+        <td>{{ t.price | number }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <div style="margin-top:0.5rem;font-size:0.85rem;color:var(--text-muted)">
+    Sum of list prices: {{ memberTotal | number }} PKR — package price above can be lower to reflect a bundle discount.
+  </div>
+
+  <div class="field-error" *ngIf="error">{{ error }}</div>
+
+  <div class="toolbar" style="margin-top:1rem">
+    <button class="btn" (click)="submit()" [disabled]="saving">{{ saving ? 'Saving…' : (editingId ? 'Update Package' : 'Save Package') }}</button>
+    <button class="btn btn-outline" (click)="showForm = false">Cancel</button>
+  </div>
+</div>
+
+<div class="card">
+  <table class="data-table">
+    <thead><tr><th>Name</th><th>Tests Included</th><th>Price</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      <tr *ngFor="let p of packages">
+        <td>{{ p.name }}</td>
+        <td>{{ p.tests.length }}</td>
+        <td>{{ p.price | number }}</td>
+        <td><span class="badge" [class.status-completed]="p.active" [class.status-rejected]="!p.active">{{ p.active ? 'Active' : 'Inactive' }}</span></td>
+        <td style="white-space:nowrap">
+          <button class="btn btn-sm btn-outline" (click)="openEditForm(p)">Edit</button>
+          <button class="btn btn-sm" [class.btn-danger]="p.active" (click)="toggleActive(p)">{{ p.active ? 'Deactivate' : 'Reactivate' }}</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="empty-state" *ngIf="!packages.length">No packages yet.</div>
+</div>

@@ -16,6 +16,8 @@ export const routes: Routes = [
       { path: 'orders/:id', loadComponent: () => import('./pages/order-detail/order-detail.component').then(m => m.OrderDetailComponent) },
       { path: 'samples', loadComponent: () => import('./pages/samples/samples.component').then(m => m.SamplesComponent) },
       { path: 'tests', loadComponent: () => import('./pages/test-catalog/test-catalog.component').then(m => m.TestCatalogComponent) },
+      { path: 'packages', loadComponent: () => import('./pages/packages/packages.component').then(m => m.PackagesComponent) },
+      { path: 'settings/departments', loadComponent: () => import('./pages/departments/departments.component').then(m => m.DepartmentsComponent) },
       { path: 'doctors', loadComponent: () => import('./pages/doctors/doctors.component').then(m => m.DoctorsComponent) },
       { path: 'analytics', loadComponent: () => import('./pages/analytics/analytics.component').then(m => m.AnalyticsComponent) },
       { path: 'notifications', loadComponent: () => import('./pages/notifications/notifications.component').then(m => m.NotificationsComponent) },

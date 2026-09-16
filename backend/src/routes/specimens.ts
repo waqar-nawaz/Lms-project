@@ -181,4 +181,47 @@ router.patch('/:id/reject', requireRole('lab_technician', 'lab_manager', 'super_
   }
 });
 
+// Redraw: create a fresh specimen (new barcode) to replace a rejected one.
+router.post('/:id/redraw', requireRole('receptionist', 'phlebotomist', 'lab_manager', 'super_admin'), async (req: AuthedRequest, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const oldRes = await client.query('SELECT * FROM specimens WHERE id = $1', [req.params.id]);
+    const old = oldRes.rows[0];
+    if (!old) throw new Error('Specimen not found');
+    if (old.status !== 'rejected') throw new Error('Only rejected specimens can be redrawn');
+
+    const existingReplacement = await client.query(
+      `SELECT id FROM specimens WHERE order_id = $1 AND specimen_type = $2 AND status != 'rejected' AND id != $3`,
+      [old.order_id, old.specimen_type, old.id]
+    );
+    if (existingReplacement.rows.length) {
+      throw new Error('A replacement specimen already exists for this test — redraw it only if that one is also rejected.');
+    }
+
+    const barcode = generateBarcode();
+    const { rows } = await client.query(
+      `INSERT INTO specimens (order_id, patient_id, specimen_type, barcode, department_id, status)
+       VALUES ($1,$2,$3,$4,$5,'awaiting_collection') RETURNING *`,
+      [old.order_id, old.patient_id, old.specimen_type, barcode, old.department_id]
+    );
+
+    await client.query(
+      `INSERT INTO specimen_events (specimen_id, event_type, status, performed_by, notes)
+       VALUES ($1,'redrawn','awaiting_collection',$2,$3)`,
+      [rows[0].id, req.user!.id, `Replacement for rejected specimen ${old.barcode}`]
+    );
+
+    await client.query(`UPDATE orders SET status = 'awaiting_sample' WHERE id = $1`, [old.order_id]);
+
+    await client.query('COMMIT');
+    res.status(201).json(rows[0]);
+  } catch (e: any) {
+    await client.query('ROLLBACK');
+    res.status(400).json({ error: e.message });
+  } finally {
+    client.release();
+  }
+});
+
 export default router;

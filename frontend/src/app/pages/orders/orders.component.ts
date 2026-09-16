@@ -20,7 +20,9 @@ export class OrdersComponent implements OnInit {
   patient: Patient | null = null;
   doctors: Doctor[] = [];
   tests: LabTest[] = [];
+  packages: any[] = [];
   selectedTestIds = new Set<string>();
+  selectedPackageIds = new Set<string>();
   doctorId = '';
   priority = 'routine';
   discount = 0;
@@ -35,6 +37,7 @@ export class OrdersComponent implements OnInit {
     this.load();
     this.api.getDoctors().subscribe((d) => (this.doctors = d));
     this.api.getTests().subscribe((t) => (this.tests = t));
+    this.api.getPackages().subscribe((p) => (this.packages = p));
 
     this.route.queryParams.subscribe((params) => {
       if (params['newFor']) {
@@ -51,9 +54,13 @@ export class OrdersComponent implements OnInit {
   }
 
   get subtotal(): number {
-    return this.tests
+    const testTotal = this.tests
       .filter((t) => this.selectedTestIds.has(t.id))
       .reduce((sum, t) => sum + Number(t.price), 0);
+    const pkgTotal = this.packages
+      .filter((p) => this.selectedPackageIds.has(p.id))
+      .reduce((sum, p) => sum + Number(p.price), 0);
+    return testTotal + pkgTotal;
   }
 
   toggleTest(id: string) {
@@ -61,10 +68,15 @@ export class OrdersComponent implements OnInit {
     else this.selectedTestIds.add(id);
   }
 
+  togglePackage(id: string) {
+    if (this.selectedPackageIds.has(id)) this.selectedPackageIds.delete(id);
+    else this.selectedPackageIds.add(id);
+  }
+
   submit() {
     this.submitted = true;
-    if (!this.patient || !this.selectedTestIds.size) {
-      this.error = !this.selectedTestIds.size ? 'Select at least one test' : '';
+    if (!this.patient || (!this.selectedTestIds.size && !this.selectedPackageIds.size)) {
+      this.error = 'Select at least one test or package';
       return;
     }
     this.error = '';
@@ -77,6 +89,7 @@ export class OrdersComponent implements OnInit {
         notes: this.notes || undefined,
         discount: this.discount || 0,
         test_ids: Array.from(this.selectedTestIds),
+        package_ids: Array.from(this.selectedPackageIds),
       })
       .subscribe({
         next: (order) => {

@@ -113,11 +113,28 @@ export class ApiService {
   createDepartment(payload: { name: string; code: string }): Observable<any> {
     return this.http.post(`${base}/catalog/departments`, payload);
   }
+  updateDepartment(id: string, payload: { name: string; code: string; active?: boolean }): Observable<any> {
+    return this.http.put(`${base}/catalog/departments/${id}`, payload);
+  }
+  getAllDepartments(): Observable<any[]> {
+    return this.http.get<any[]>(`${base}/catalog/departments/all`);
+  }
   createTest(payload: any): Observable<any> {
     return this.http.post(`${base}/catalog/tests`, payload);
   }
   updateTest(id: string, payload: any): Observable<any> {
     return this.http.put(`${base}/catalog/tests/${id}`, payload);
+  }
+
+  // Packages
+  getPackages(): Observable<any[]> {
+    return this.http.get<any[]>(`${base}/catalog/packages`);
+  }
+  createPackage(payload: any): Observable<any> {
+    return this.http.post(`${base}/catalog/packages`, payload);
+  }
+  updatePackage(id: string, payload: any): Observable<any> {
+    return this.http.put(`${base}/catalog/packages/${id}`, payload);
   }
 
   // Orders
@@ -150,10 +167,16 @@ export class ApiService {
   rejectSpecimen(id: string, reason: string): Observable<Specimen> {
     return this.http.patch<Specimen>(`${base}/specimens/${id}/reject`, { reason });
   }
+  redrawSpecimen(id: string): Observable<Specimen> {
+    return this.http.post<Specimen>(`${base}/specimens/${id}/redraw`, {});
+  }
 
   // Results
   getResultsWorklist(orderId: string): Observable<ResultRow[]> {
     return this.http.get<ResultRow[]>(`${base}/results/orders/${orderId}`);
+  }
+  getResultHistory(resultId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${base}/results/${resultId}/history`);
   }
   enterResult(payload: { order_item_id: string; parameter_id: string; value: string; amendment_reason?: string }): Observable<any> {
     return this.http.post(`${base}/results`, payload);

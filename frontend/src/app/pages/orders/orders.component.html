@@ -25,6 +25,19 @@
     </div>
   </div>
 
+  <h4>Select a package (optional)</h4>
+  <table class="data-table" *ngIf="packages.length">
+    <thead><tr><th></th><th>Package</th><th>Includes</th><th>Price</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let p of packages">
+        <td><input type="checkbox" [checked]="selectedPackageIds.has(p.id)" (change)="togglePackage(p.id)" /></td>
+        <td>{{ p.name }}</td>
+        <td style="color:#93a2b3">{{ p.tests.length }} tests</td>
+        <td>{{ p.price | number }}</td>
+      </tr>
+    </tbody>
+  </table>
+
   <h4>Select tests</h4>
   <table class="data-table">
     <thead><tr><th></th><th>Test</th><th>Specimen</th><th>Price</th></tr></thead>

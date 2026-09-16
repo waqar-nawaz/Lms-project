@@ -31,6 +31,8 @@ export class OrderDetailComponent implements OnInit {
   resultErrors: Record<string, string> = {};
   paymentSubmitted = false;
   paymentError = '';
+  historyFor: string | null = null;
+  historyRows: any[] = [];
 
   readonly rejectionReasons = [
     'insufficient_volume', 'hemolyzed', 'clotted', 'wrong_container', 'leaking_container',
@@ -93,6 +95,23 @@ export class OrderDetailComponent implements OnInit {
       next: () => { this.flash('Specimen rejected'); this.rejectReasonFor = null; this.loadAll(); },
       error: (e) => this.showError(e),
     });
+  }
+
+  redraw(specimenId: string) {
+    this.api.redrawSpecimen(specimenId).subscribe({
+      next: () => { this.flash('New specimen created for redraw'); this.loadAll(); },
+      error: (e) => this.showError(e),
+    });
+  }
+
+  viewHistory(resultId: string) {
+    this.historyFor = resultId;
+    this.api.getResultHistory(resultId).subscribe((rows) => (this.historyRows = rows));
+  }
+
+  closeHistory() {
+    this.historyFor = null;
+    this.historyRows = [];
   }
 
   // --- Results ---

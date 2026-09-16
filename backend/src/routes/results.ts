@@ -28,6 +28,19 @@ router.get('/orders/:orderId', async (req, res) => {
   res.json(rows);
 });
 
+// Amendment history for a single result
+router.get('/:id/history', async (req, res) => {
+  const { rows } = await query(
+    `SELECT rv.*, u.name AS changed_by_name
+     FROM result_versions rv
+     LEFT JOIN users u ON u.id = rv.changed_by
+     WHERE rv.result_id = $1
+     ORDER BY rv.changed_at DESC`,
+    [req.params.id]
+  );
+  res.json(rows);
+});
+
 // Enter (or amend) a result
 router.post('/', requireRole('lab_technician', 'lab_manager', 'super_admin'), async (req: AuthedRequest, res) => {
   const { order_item_id, parameter_id, value, amendment_reason } = req.body;

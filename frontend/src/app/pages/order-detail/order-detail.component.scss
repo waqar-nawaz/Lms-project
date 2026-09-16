@@ -6,3 +6,25 @@
 }
 .toast.success { background: #dcf3e5; color: #1b7a41; }
 .toast.error { background: #fbe0dd; color: #b12f21; }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: 1rem;
+}
+
+.modal-card {
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 1.5rem;
+  max-width: 700px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
