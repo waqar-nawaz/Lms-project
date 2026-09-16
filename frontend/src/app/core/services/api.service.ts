@@ -76,6 +76,40 @@ export class ApiService {
   acknowledgeCritical(resultId: string): Observable<any> {
     return this.http.patch(`${base}/results/${resultId}/acknowledge-critical`, {});
   }
+
+  // Inventory
+  getInventoryItems(): Observable<any[]> {
+    return this.http.get<any[]>(`${base}/inventory/items`);
+  }
+  createInventoryItem(payload: any): Observable<any> {
+    return this.http.post(`${base}/inventory/items`, payload);
+  }
+  updateInventoryItem(id: string, payload: any): Observable<any> {
+    return this.http.put(`${base}/inventory/items/${id}`, payload);
+  }
+  recordInventoryTransaction(itemId: string, payload: { type: string; quantity: number; notes?: string }): Observable<any> {
+    return this.http.post(`${base}/inventory/items/${itemId}/transactions`, payload);
+  }
+  getInventoryTransactions(itemId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${base}/inventory/items/${itemId}/transactions`);
+  }
+  getInventoryAlerts(): Observable<any[]> {
+    return this.http.get<any[]>(`${base}/inventory/alerts`);
+  }
+
+  // Quality Control
+  getQcMaterials(): Observable<any[]> {
+    return this.http.get<any[]>(`${base}/qc/materials`);
+  }
+  createQcMaterial(payload: any): Observable<any> {
+    return this.http.post(`${base}/qc/materials`, payload);
+  }
+  recordQcResult(materialId: string, value: number): Observable<any> {
+    return this.http.post(`${base}/qc/materials/${materialId}/results`, { value });
+  }
+  getQcResults(materialId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${base}/qc/materials/${materialId}/results`);
+  }
   searchPatients(q: string): Observable<Patient[]> {
     return this.http.get<Patient[]>(`${base}/patients`, { params: q ? { q } : {} });
   }

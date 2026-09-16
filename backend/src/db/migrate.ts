@@ -15,14 +15,16 @@ async function migrate() {
     }
   }
 
-  // Phase 2+ incremental migrations use IF NOT EXISTS throughout, so they're
-  // safe to run on every deploy regardless of whether the base schema is new
-  // or already existed.
-  const phase2Path = path.join(__dirname, 'migrations_002_phase2.sql');
-  if (fs.existsSync(phase2Path)) {
-    const phase2Sql = fs.readFileSync(phase2Path, 'utf-8');
-    await pool.query(phase2Sql);
-    console.log('Phase 2 migration applied (idempotent).');
+  // Incremental migrations use IF NOT EXISTS throughout, so they're safe to
+  // run on every deploy regardless of whether the base schema is new or
+  // already existed.
+  const incrementalFiles = ['migrations_002_phase2.sql', 'migrations_003_phase3.sql'];
+  for (const file of incrementalFiles) {
+    const filePath = path.join(__dirname, file);
+    if (fs.existsSync(filePath)) {
+      await pool.query(fs.readFileSync(filePath, 'utf-8'));
+      console.log(`${file} applied (idempotent).`);
+    }
   }
 
   await pool.end();

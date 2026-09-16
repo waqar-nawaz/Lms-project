@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc && copyfiles -u 1 src/db/schema.sql src/db/migrations_002_phase2.sql dist/",
+    "build": "tsc && copyfiles -u 1 src/db/schema.sql src/db/migrations_002_phase2.sql src/db/migrations_003_phase3.sql dist/",
     "start": "node dist/index.js",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "migrate": "ts-node src/db/migrate.ts",

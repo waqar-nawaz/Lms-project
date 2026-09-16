@@ -1,0 +1,98 @@
+<h1 class="page-title">Inventory</h1>
+
+<div class="card" *ngIf="alerts.length" style="border-left:4px solid #c0392b">
+  <h3 style="margin-top:0;color:#c0392b">⚠ Needs Attention</h3>
+  <table class="data-table">
+    <thead><tr><th>Item</th><th>Stock</th><th>Reorder Level</th><th>Expiry</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let a of alerts">
+        <td>{{ a.name }}</td>
+        <td>{{ a.current_stock }} {{ a.unit }}</td>
+        <td>{{ a.reorder_level }} {{ a.unit }}</td>
+        <td>{{ a.expiry_date ? (a.expiry_date | date:'mediumDate') : '-' }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="toolbar">
+  <button class="btn" (click)="openForm()">+ New Item</button>
+</div>
+
+<div class="card" *ngIf="showForm">
+  <h3 style="margin-top:0">{{ editingId ? 'Edit Item' : 'New Item' }}</h3>
+  <div class="field-row">
+    <div>
+      <label>Name <span class="required-mark">*</span></label>
+      <input [(ngModel)]="form.name" [class.invalid]="submitted && !form.name" />
+    </div>
+    <div><label>Category</label><input [(ngModel)]="form.category" placeholder="e.g. reagent" /></div>
+    <div><label>Unit</label><input [(ngModel)]="form.unit" placeholder="e.g. kits, bottles" /></div>
+  </div>
+  <div class="field-row" style="margin-top:0.75rem">
+    <div><label>Reorder level</label><input type="number" [(ngModel)]="form.reorder_level" /></div>
+    <div *ngIf="!editingId"><label>Starting stock</label><input type="number" [(ngModel)]="form.current_stock" /></div>
+    <div><label>Expiry date</label><input type="date" [(ngModel)]="form.expiry_date" /></div>
+  </div>
+
+  <div class="field-error" *ngIf="error">{{ error }}</div>
+
+  <div class="toolbar" style="margin-top:1rem">
+    <button class="btn" (click)="submit()" [disabled]="saving">{{ saving ? 'Saving…' : (editingId ? 'Update' : 'Save') }}</button>
+    <button class="btn btn-outline" (click)="showForm = false">Cancel</button>
+  </div>
+</div>
+
+<div class="card" *ngIf="txnFor">
+  <h3 style="margin-top:0">Stock Transaction — {{ txnFor.name }}</h3>
+  <div class="field-row">
+    <div>
+      <label>Type</label>
+      <select [(ngModel)]="txnType">
+        <option value="restock">Restock (add)</option>
+        <option value="consume">Consume (use)</option>
+        <option value="adjustment">Adjustment (+/-)</option>
+      </select>
+    </div>
+    <div><label>Quantity</label><input type="number" [(ngModel)]="txnQuantity" /></div>
+    <div><label>Notes</label><input [(ngModel)]="txnNotes" /></div>
+  </div>
+  <div class="field-error" *ngIf="txnError">{{ txnError }}</div>
+  <div class="toolbar" style="margin-top:0.75rem">
+    <button class="btn btn-sm" (click)="submitTransaction()">Record</button>
+    <button class="btn btn-outline btn-sm" (click)="closeTransaction()">Close</button>
+  </div>
+
+  <table class="data-table" style="margin-top:1rem" *ngIf="transactions.length">
+    <thead><tr><th>When</th><th>Type</th><th>Qty</th><th>By</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let t of transactions">
+        <td>{{ t.created_at | date:'short' }}</td>
+        <td>{{ t.type }}</td>
+        <td>{{ t.quantity }}</td>
+        <td>{{ t.performed_by_name }}</td>
+        <td>{{ t.notes }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <table class="data-table">
+    <thead><tr><th>Name</th><th>Category</th><th>Stock</th><th>Reorder Level</th><th>Expiry</th><th></th></tr></thead>
+    <tbody>
+      <tr *ngFor="let i of items" [class.low-stock]="isLow(i)">
+        <td>{{ i.name }}</td>
+        <td>{{ i.category || '-' }}</td>
+        <td>{{ i.current_stock }} {{ i.unit }}</td>
+        <td>{{ i.reorder_level }} {{ i.unit }}</td>
+        <td>{{ i.expiry_date ? (i.expiry_date | date:'mediumDate') : '-' }}</td>
+        <td style="white-space:nowrap">
+          <button class="btn btn-sm btn-outline" (click)="openEditForm(i)">Edit</button>
+          <button class="btn btn-sm" (click)="openTransaction(i)">Stock</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="empty-state" *ngIf="!items.length">No inventory items yet.</div>
+</div>

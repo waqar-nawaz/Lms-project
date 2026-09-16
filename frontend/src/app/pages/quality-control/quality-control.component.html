@@ -1,0 +1,93 @@
+<h1 class="page-title">Quality Control</h1>
+
+<div class="toolbar">
+  <button class="btn" (click)="openForm()">+ New QC Material</button>
+</div>
+
+<div class="card" *ngIf="showForm">
+  <h3 style="margin-top:0">New QC Material</h3>
+  <div class="field-row">
+    <div>
+      <label>Test Parameter <span class="required-mark">*</span></label>
+      <select [(ngModel)]="form.parameter_id" [class.invalid]="submitted && !form.parameter_id">
+        <option value="">— Select —</option>
+        <optgroup *ngFor="let t of tests" [label]="t.name">
+          <option *ngFor="let p of t.parameters" [value]="p.id">{{ p.name }} ({{ p.unit }})</option>
+        </optgroup>
+      </select>
+    </div>
+    <div>
+      <label>Material Name <span class="required-mark">*</span></label>
+      <input [(ngModel)]="form.name" placeholder="e.g. Normal Control" [class.invalid]="submitted && !form.name" />
+    </div>
+    <div>
+      <label>Level</label>
+      <select [(ngModel)]="form.level">
+        <option>Level 1</option>
+        <option>Level 2</option>
+        <option>Level 3</option>
+      </select>
+    </div>
+  </div>
+  <div class="field-row" style="margin-top:0.75rem">
+    <div>
+      <label>Target Mean <span class="required-mark">*</span></label>
+      <input type="number" step="0.01" [(ngModel)]="form.target_mean" [class.invalid]="submitted && form.target_mean === null" />
+    </div>
+    <div>
+      <label>Target SD <span class="required-mark">*</span></label>
+      <input type="number" step="0.01" [(ngModel)]="form.target_sd" [class.invalid]="submitted && form.target_sd === null" />
+    </div>
+  </div>
+
+  <div class="field-error" *ngIf="error">{{ error }}</div>
+
+  <div class="toolbar" style="margin-top:1rem">
+    <button class="btn" (click)="submit()" [disabled]="saving">{{ saving ? 'Saving…' : 'Save' }}</button>
+    <button class="btn btn-outline" (click)="showForm = false">Cancel</button>
+  </div>
+</div>
+
+<div class="card" *ngIf="resultsFor">
+  <h3 style="margin-top:0">{{ resultsFor.name }} ({{ resultsFor.level }}) — {{ resultsFor.parameter_name }}</h3>
+  <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.75rem">
+    Target mean {{ resultsFor.target_mean }}, SD {{ resultsFor.target_sd }} {{ resultsFor.unit }}
+  </div>
+
+  <div class="toolbar">
+    <input type="number" step="0.01" placeholder="New QC value" [(ngModel)]="newValue" style="width:160px" />
+    <button class="btn btn-sm" (click)="submitResult()">Record</button>
+    <button class="btn btn-outline btn-sm" (click)="closeResults()">Close</button>
+  </div>
+  <div class="field-error" *ngIf="resultError">{{ resultError }}</div>
+
+  <table class="data-table" style="margin-top:1rem" *ngIf="results.length">
+    <thead><tr><th>When</th><th>Value</th><th>Z-score</th><th>Flag</th><th>By</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let r of results">
+        <td>{{ r.performed_at | date:'short' }}</td>
+        <td>{{ r.value }}</td>
+        <td>{{ r.z_score ? (r.z_score | number:'1.2-2') : '-' }}</td>
+        <td><span class="badge" *ngIf="r.westgard_violation" [class.status-critical_low]="r.westgard_violation.includes('reject')" [class.status-low]="!r.westgard_violation.includes('reject')">{{ r.westgard_violation }}</span></td>
+        <td>{{ r.performed_by_name }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <table class="data-table">
+    <thead><tr><th>Test</th><th>Parameter</th><th>Material</th><th>Level</th><th>Target Mean ± SD</th><th></th></tr></thead>
+    <tbody>
+      <tr *ngFor="let m of materials">
+        <td>{{ m.test_name }}</td>
+        <td>{{ m.parameter_name }}</td>
+        <td>{{ m.name }}</td>
+        <td>{{ m.level }}</td>
+        <td>{{ m.target_mean }} ± {{ m.target_sd }} {{ m.unit }}</td>
+        <td><button class="btn btn-sm btn-outline" (click)="openResults(m)">View / Add Results</button></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="empty-state" *ngIf="!materials.length">No QC materials set up yet.</div>
+</div>

@@ -49,6 +49,14 @@
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
         <span *ngIf="!isIconOnly()">Packages</span>
       </a>
+      <a routerLink="/inventory" routerLinkActive="active" data-label="Inventory">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 7.27L12 2 3.5 7.27"/><path d="M20.5 7.27v9.46L12 22l-8.5-5.27V7.27"/><polyline points="3.5 7.27 12 12.5 20.5 7.27"/><line x1="12" y1="12.5" x2="12" y2="22"/></svg>
+        <span *ngIf="!isIconOnly()">Inventory</span>
+      </a>
+      <a routerLink="/quality-control" routerLinkActive="active" data-label="Quality Control">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span *ngIf="!isIconOnly()">Quality Control</span>
+      </a>
       <a routerLink="/analytics" routerLinkActive="active" data-label="Reports & Analytics">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
         <span *ngIf="!isIconOnly()">Reports &amp; Analytics</span>

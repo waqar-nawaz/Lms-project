@@ -18,6 +18,8 @@ import patientPortalRoutes from './routes/patientPortal';
 import adminRoutes from './routes/admin';
 import notificationRoutes from './routes/notifications';
 import userRoutes from './routes/users';
+import inventoryRoutes from './routes/inventory';
+import qcRoutes from './routes/qc';
 
 const app = express();
 app.use(cors());
@@ -40,6 +42,8 @@ app.use('/api/patient-portal', patientPortalRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/inventory', inventoryRoutes);
+app.use('/api/qc', qcRoutes);
 
 const port = process.env.PORT || 4000;
 app.listen(port, () => console.log(`LMS backend listening on port ${port}`));
