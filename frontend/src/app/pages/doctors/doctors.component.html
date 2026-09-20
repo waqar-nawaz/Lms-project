@@ -36,18 +36,34 @@
   </div>
 </div>
 
+<div class="card" *ngIf="loginFor">
+  <h3 style="margin-top:0">Create Portal Login — {{ loginFor.name }}</h3>
+  <div class="field-row">
+    <div><label>Email <span class="required-mark">*</span></label><input type="email" [(ngModel)]="loginEmail" /></div>
+    <div><label>Password <span class="required-mark">*</span></label><input type="password" [(ngModel)]="loginPassword" /></div>
+  </div>
+  <div class="field-error" *ngIf="loginError">{{ loginError }}</div>
+  <div class="toast" *ngIf="loginSuccess" style="background:#dcf3e5;color:#1b7a41;padding:0.5rem 0.75rem;border-radius:6px;margin-top:0.5rem;font-size:0.85rem">{{ loginSuccess }}</div>
+  <div class="toolbar" style="margin-top:0.75rem">
+    <button class="btn btn-sm" (click)="submitLogin()" *ngIf="!loginSuccess">Create Login</button>
+    <button class="btn btn-outline btn-sm" (click)="loginFor = null">Close</button>
+  </div>
+</div>
+
 <div class="card">
   <table class="data-table">
-    <thead><tr><th>Name</th><th>Specialty</th><th>Phone</th><th>Status</th><th></th></tr></thead>
+    <thead><tr><th>Name</th><th>Specialty</th><th>Phone</th><th>Portal</th><th>Status</th><th></th></tr></thead>
     <tbody>
       <tr *ngFor="let d of doctors">
         <td>{{ d.name }}</td>
         <td>{{ d.specialty || '-' }}</td>
         <td>{{ d.phone || '-' }}</td>
+        <td><span class="badge" [class.status-completed]="d.user_id">{{ d.user_id ? 'Enabled' : 'Not set up' }}</span></td>
         <td><span class="badge" [class.status-completed]="d.active" [class.status-rejected]="!d.active">{{ d.active ? 'Active' : 'Inactive' }}</span></td>
         <td style="white-space:nowrap">
           <button class="btn btn-sm btn-outline" (click)="openEditForm(d)">Edit</button>
           <button class="btn btn-sm" [class.btn-danger]="d.active" (click)="toggleActive(d)">{{ d.active ? 'Deactivate' : 'Reactivate' }}</button>
+          <button class="btn btn-sm btn-outline" *ngIf="!d.user_id" (click)="openLoginForm(d)">Set Up Portal</button>
         </td>
       </tr>
     </tbody>

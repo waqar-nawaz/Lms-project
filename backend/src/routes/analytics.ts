@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { query } from '../db/pool';
-import { requireAuth } from '../middleware/auth';
+import { requireAuth, blockPortalRoles } from '../middleware/auth';
 
 const router = Router();
-router.use(requireAuth);
+router.use(requireAuth, blockPortalRoles);
 
 router.get('/orders-summary', async (req, res) => {
   const { from, to, test_id, doctor_id } = req.query as Record<string, string | undefined>;

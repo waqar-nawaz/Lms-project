@@ -110,6 +110,33 @@ export class ApiService {
   getQcResults(materialId: string): Observable<any[]> {
     return this.http.get<any[]>(`${base}/qc/materials/${materialId}/results`);
   }
+
+  // Doctor portal login management
+  createDoctorLogin(doctorId: string, payload: { email: string; password: string }): Observable<any> {
+    return this.http.post(`${base}/doctors/${doctorId}/create-login`, payload);
+  }
+
+  // Doctor portal (for logged-in doctor accounts)
+  getDoctorPortalOrders(): Observable<any[]> {
+    return this.http.get<any[]>(`${base}/doctor-portal/orders`);
+  }
+  getDoctorPortalOrder(id: string): Observable<any> {
+    return this.http.get(`${base}/doctor-portal/orders/${id}`);
+  }
+  downloadDoctorPortalReport(id: string): Observable<Blob> {
+    return this.http.get(`${base}/doctor-portal/reports/${id}/download`, { responseType: 'blob' });
+  }
+
+  // Branches
+  getBranches(): Observable<any[]> {
+    return this.http.get<any[]>(`${base}/branches`);
+  }
+  createBranch(payload: any): Observable<any> {
+    return this.http.post(`${base}/branches`, payload);
+  }
+  updateBranch(id: string, payload: any): Observable<any> {
+    return this.http.put(`${base}/branches/${id}`, payload);
+  }
   searchPatients(q: string): Observable<Patient[]> {
     return this.http.get<Patient[]>(`${base}/patients`, { params: q ? { q } : {} });
   }

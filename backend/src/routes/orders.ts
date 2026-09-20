@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { query, pool } from '../db/pool';
-import { requireAuth, AuthedRequest } from '../middleware/auth';
+import { requireAuth, blockPortalRoles, AuthedRequest } from '../middleware/auth';
 import { generateOrderNumber } from '../helpers/numbering';
 
 const router = Router();
-router.use(requireAuth);
+router.use(requireAuth, blockPortalRoles);
 
 router.get('/', async (req: AuthedRequest, res) => {
   const { status } = req.query;

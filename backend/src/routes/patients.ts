@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { query } from '../db/pool';
-import { requireAuth, AuthedRequest } from '../middleware/auth';
+import { requireAuth, blockPortalRoles, AuthedRequest } from '../middleware/auth';
 import { logAudit } from '../helpers/audit';
 
 const router = Router();
-router.use(requireAuth);
+router.use(requireAuth, blockPortalRoles);
 
 // Search / list patients — by name, phone, MRN, or identity number
 router.get('/', async (req: AuthedRequest, res) => {

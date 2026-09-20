@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { pool, query } from '../db/pool';
-import { requireAuth, requireRole, AuthedRequest } from '../middleware/auth';
+import { requireAuth, requireRole, blockPortalRoles, AuthedRequest } from '../middleware/auth';
 import { logAudit } from '../helpers/audit';
 
 const router = Router();
-router.use(requireAuth);
+router.use(requireAuth, blockPortalRoles);
 
 // Dependency order — parents before children. Restore inserts in this order;
 // backup just reads all of them.

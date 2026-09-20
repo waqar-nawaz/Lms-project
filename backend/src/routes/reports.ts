@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import PDFDocument from 'pdfkit';
 import { query } from '../db/pool';
-import { requireAuth, requireRole, AuthedRequest } from '../middleware/auth';
+import { requireAuth, requireRole, blockPortalRoles, AuthedRequest } from '../middleware/auth';
 import { generateReportNumber } from '../helpers/numbering';
 import { calculateAge, pickReferenceRange } from '../helpers/resultLogic';
 
@@ -33,7 +33,7 @@ router.get('/verify/:token', async (req, res) => {
   });
 });
 
-router.use(requireAuth);
+router.use(requireAuth, blockPortalRoles);
 
 router.get('/orders/:orderId', async (req, res) => {
   const { rows } = await query('SELECT * FROM reports WHERE order_id = $1 ORDER BY version DESC', [req.params.orderId]);

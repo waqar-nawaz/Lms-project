@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { query } from '../db/pool';
-import { requireAuth, requireRole, AuthedRequest } from '../middleware/auth';
+import { requireAuth, requireRole, blockPortalRoles, AuthedRequest } from '../middleware/auth';
 import { logAudit } from '../helpers/audit';
 
 const router = Router();
-router.use(requireAuth);
+router.use(requireAuth, blockPortalRoles);
 
 const ROLES = [
   'super_admin', 'lab_manager', 'receptionist', 'phlebotomist',
@@ -23,7 +23,7 @@ router.get('/', requireRole('super_admin'), async (req: AuthedRequest, res) => {
 });
 
 router.post('/', requireRole('super_admin'), async (req: AuthedRequest, res) => {
-  const { name, email, phone, password, role } = req.body;
+  const { name, email, phone, password, role, branch_id } = req.body;
   if (!name || !email || !password || !role) {
     return res.status(400).json({ error: 'name, email, password, and role are required' });
   }
@@ -37,7 +37,7 @@ router.post('/', requireRole('super_admin'), async (req: AuthedRequest, res) => 
   const { rows } = await query(
     `INSERT INTO users (branch_id, name, email, phone, password_hash, role)
      VALUES ($1,$2,$3,$4,$5,$6) RETURNING id, name, email, phone, role, active, created_at`,
-    [req.user!.branchId, name, email, phone || null, passwordHash, role]
+    [branch_id || req.user!.branchId, name, email, phone || null, passwordHash, role]
   );
 
   await logAudit({

@@ -19,6 +19,7 @@ const ROLES = [
 export class UsersComponent implements OnInit {
   roles = ROLES;
   users: any[] = [];
+  branches: any[] = [];
 
   showForm = false;
   editingId: string | null = null;
@@ -32,6 +33,7 @@ export class UsersComponent implements OnInit {
 
   ngOnInit() {
     this.load();
+    this.api.getBranches().subscribe((rows) => (this.branches = rows));
   }
 
   load() {
@@ -39,7 +41,7 @@ export class UsersComponent implements OnInit {
   }
 
   emptyForm() {
-    return { name: '', email: '', phone: '', password: '', role: 'receptionist' };
+    return { name: '', email: '', phone: '', password: '', role: 'receptionist', branch_id: '' };
   }
 
   openForm() {

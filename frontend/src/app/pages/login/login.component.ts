@@ -27,9 +27,9 @@ export class LoginComponent {
 
     this.loading = true;
     this.auth.login(this.email, this.password).subscribe({
-      next: () => {
+      next: (res) => {
         this.loading = false;
-        this.router.navigate(['/dashboard']);
+        this.router.navigate([res.user.role === 'doctor' ? '/doctor-dashboard' : '/dashboard']);
       },
       error: (err) => {
         this.loading = false;

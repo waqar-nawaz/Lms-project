@@ -1,0 +1,27 @@
+.doc-shell {
+  min-height: 100vh;
+  background: var(--bg);
+}
+.doc-header {
+  background: #0f2942;
+  color: #fff;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.doc-header .brand {
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+.doc-header .user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+}
+.doc-content {
+  padding: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}

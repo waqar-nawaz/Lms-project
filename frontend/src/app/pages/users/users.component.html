@@ -40,6 +40,12 @@
         <option [ngValue]="false">Inactive</option>
       </select>
     </div>
+    <div *ngIf="!editingId && branches.length > 1">
+      <label>Branch</label>
+      <select [(ngModel)]="form.branch_id">
+        <option *ngFor="let b of branches" [value]="b.id">{{ b.name }}</option>
+      </select>
+    </div>
   </div>
 
   <div class="field-error" *ngIf="error">{{ error }}</div>

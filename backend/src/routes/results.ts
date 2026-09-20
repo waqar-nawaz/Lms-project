@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { query, pool } from '../db/pool';
-import { requireAuth, requireRole, AuthedRequest } from '../middleware/auth';
+import { requireAuth, requireRole, blockPortalRoles, AuthedRequest } from '../middleware/auth';
 import { calculateAge, pickReferenceRange, flagForNumeric, isCriticalFlag } from '../helpers/resultLogic';
 import { logAudit } from '../helpers/audit';
 import { notifyRoles } from '../helpers/notifications';
 
 const router = Router();
-router.use(requireAuth);
+router.use(requireAuth, blockPortalRoles);
 
 // Worklist: all order items + parameters + existing results for an order
 router.get('/orders/:orderId', async (req, res) => {

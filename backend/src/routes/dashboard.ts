@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { query } from '../db/pool';
-import { requireAuth } from '../middleware/auth';
+import { requireAuth, blockPortalRoles } from '../middleware/auth';
 
 const router = Router();
-router.use(requireAuth);
+router.use(requireAuth, blockPortalRoles);
 
 router.get('/summary', async (_req, res) => {
   const [

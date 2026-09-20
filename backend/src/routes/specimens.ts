@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { query, pool } from '../db/pool';
-import { requireAuth, requireRole, AuthedRequest } from '../middleware/auth';
+import { requireAuth, requireRole, blockPortalRoles, AuthedRequest } from '../middleware/auth';
 import { generateBarcode } from '../helpers/numbering';
 import { notifyRoles } from '../helpers/notifications';
 
 const router = Router();
-router.use(requireAuth);
+router.use(requireAuth, blockPortalRoles);
 
 const REJECTION_REASONS = [
   'insufficient_volume', 'hemolyzed', 'clotted', 'wrong_container', 'leaking_container',

@@ -5,6 +5,7 @@ export const routes: Routes = [
   { path: 'login', loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent) },
   { path: 'portal', loadComponent: () => import('./pages/patient-portal/patient-portal.component').then(m => m.PatientPortalComponent) },
   { path: 'verify/:token', loadComponent: () => import('./pages/report-verify/report-verify.component').then(m => m.ReportVerifyComponent) },
+  { path: 'doctor-dashboard', loadComponent: () => import('./pages/doctor-dashboard/doctor-dashboard.component').then(m => m.DoctorDashboardComponent), canActivate: [authGuard] },
   {
     path: '',
     loadComponent: () => import('./pages/shell/shell.component').then(m => m.ShellComponent),
@@ -26,6 +27,7 @@ export const routes: Routes = [
       { path: 'settings', loadComponent: () => import('./pages/admin-backup/admin-backup.component').then(m => m.AdminBackupComponent) },
       { path: 'settings/users', loadComponent: () => import('./pages/users/users.component').then(m => m.UsersComponent) },
       { path: 'settings/audit-log', loadComponent: () => import('./pages/audit-log/audit-log.component').then(m => m.AuditLogComponent) },
+      { path: 'settings/branches', loadComponent: () => import('./pages/branches/branches.component').then(m => m.BranchesComponent) },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },

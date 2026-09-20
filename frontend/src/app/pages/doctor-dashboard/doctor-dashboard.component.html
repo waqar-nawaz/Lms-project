@@ -1,0 +1,56 @@
+<div class="doc-shell">
+  <header class="doc-header">
+    <div class="brand">LabTrack — Referring Doctor Portal</div>
+    <div class="user-info">
+      {{ auth.currentUser()?.name }}
+      <button class="btn btn-sm btn-outline" (click)="auth.logout()">Log out</button>
+    </div>
+  </header>
+
+  <main class="doc-content">
+    <ng-container *ngIf="!selected">
+      <h1 class="page-title">My Patients' Orders</h1>
+      <div class="card">
+        <table class="data-table">
+          <thead><tr><th>Order #</th><th>Patient</th><th>Status</th><th>Date</th><th></th></tr></thead>
+          <tbody>
+            <tr *ngFor="let o of orders">
+              <td>{{ o.order_number }}</td>
+              <td>{{ o.first_name }} {{ o.last_name }} <span style="color:#93a2b3">({{ o.mrn }})</span></td>
+              <td><span class="badge" [class]="'status-' + o.status">{{ o.status.replace('_',' ') }}</span></td>
+              <td>{{ o.created_at | date:'mediumDate' }}</td>
+              <td><button class="btn btn-sm btn-outline" (click)="open(o)">View</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="empty-state" *ngIf="!orders.length">No orders yet for your patients.</div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="selected">
+      <button class="btn btn-outline btn-sm" (click)="closeDetail()">← Back to list</button>
+      <h1 class="page-title" style="margin-top:0.75rem">{{ selected.order_number }}</h1>
+      <div class="card">
+        <div class="field-row">
+          <div><label>Patient</label><div>{{ selected.first_name }} {{ selected.last_name }} ({{ selected.mrn }})</div></div>
+          <div><label>Status</label><div><span class="badge" [class]="'status-' + selected.status">{{ selected.status.replace('_',' ') }}</span></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">Reports</h3>
+        <table class="data-table" *ngIf="selected.reports.length">
+          <thead><tr><th>Report #</th><th>Version</th><th>Finalized</th><th></th></tr></thead>
+          <tbody>
+            <tr *ngFor="let r of selected.reports">
+              <td>{{ r.report_number }}</td>
+              <td>{{ r.version }}</td>
+              <td>{{ r.finalized_at | date:'medium' }}</td>
+              <td><button class="btn btn-sm" (click)="download(r.id, r.report_number)">Download</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="empty-state" *ngIf="!selected.reports.length">No finalized reports yet.</div>
+      </div>
+    </ng-container>
+  </main>
+</div>

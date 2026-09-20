@@ -70,4 +70,33 @@ export class DoctorsComponent implements OnInit {
   toggleActive(d: Doctor) {
     this.api.updateDoctor(d.id, { ...d, active: !d.active }).subscribe(() => this.load());
   }
+
+  loginFor: Doctor | null = null;
+  loginEmail = '';
+  loginPassword = '';
+  loginError = '';
+  loginSuccess = '';
+
+  openLoginForm(d: Doctor) {
+    this.loginFor = d;
+    this.loginEmail = '';
+    this.loginPassword = '';
+    this.loginError = '';
+    this.loginSuccess = '';
+  }
+
+  submitLogin() {
+    if (!this.loginFor) return;
+    if (!this.loginEmail || !this.loginPassword || this.loginPassword.length < 8) {
+      this.loginError = 'Email and an 8+ character password are required';
+      return;
+    }
+    this.api.createDoctorLogin(this.loginFor.id, { email: this.loginEmail, password: this.loginPassword }).subscribe({
+      next: () => {
+        this.loginSuccess = `Portal login created for ${this.loginEmail}.`;
+        this.load();
+      },
+      error: (err) => (this.loginError = err.error?.error || 'Failed to create login'),
+    });
+  }
 }

@@ -31,6 +31,7 @@ export interface Doctor {
   phone?: string;
   email?: string;
   active?: boolean;
+  user_id?: string;
 }
 
 export interface TestParameter {

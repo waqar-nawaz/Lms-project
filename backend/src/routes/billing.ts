@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { query, pool } from '../db/pool';
-import { requireAuth, requireRole, AuthedRequest } from '../middleware/auth';
+import { requireAuth, requireRole, blockPortalRoles, AuthedRequest } from '../middleware/auth';
 import { generateInvoiceNumber } from '../helpers/numbering';
 
 const router = Router();
-router.use(requireAuth);
+router.use(requireAuth, blockPortalRoles);
 
 router.post('/orders/:orderId/invoice', requireRole('receptionist', 'accountant', 'lab_manager', 'super_admin'), async (req, res) => {
   const orderRes = await query('SELECT * FROM orders WHERE id = $1', [req.params.orderId]);

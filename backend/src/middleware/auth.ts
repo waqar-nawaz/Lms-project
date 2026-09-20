@@ -32,6 +32,17 @@ export function requireRole(...roles: string[]) {
   };
 }
 
+// External accounts (referring doctors, patients) authenticate like staff but must
+// only ever reach their own dedicated portal routes — never the general staff API
+// (patient lists, orders, results, billing, etc). Apply this right after
+// requireAuth on every staff-facing router.
+export function blockPortalRoles(req: AuthedRequest, res: Response, next: NextFunction) {
+  if (req.user && (req.user.role === 'doctor' || req.user.role === 'patient')) {
+    return res.status(403).json({ error: 'This account only has access to its own portal.' });
+  }
+  next();
+}
+
 export function signToken(user: { id: string; role: string; branchId: string; name: string }) {
   return jwt.sign({ sub: user.id, role: user.role, branchId: user.branchId, name: user.name }, JWT_SECRET, {
     expiresIn: '12h',
