@@ -80,4 +80,30 @@ export class AnalyticsComponent implements OnInit {
     this.doctorId = '';
     this.setPreset('month');
   }
+
+  exportCsv() {
+    if (!this.summary) return;
+    const lines: string[] = [];
+    lines.push(`Analytics export,${this.fromDate} to ${this.toDate}`);
+    lines.push('');
+    lines.push(`Total Orders,${this.summary.totalOrders}`);
+    lines.push(`Total Revenue (PKR),${this.summary.totalRevenue}`);
+    lines.push('');
+    lines.push('By Test');
+    lines.push('Test,Code,Count');
+    this.summary.byTest.forEach((t: any) => lines.push(`"${t.test_name}",${t.test_code},${t.count}`));
+    lines.push('');
+    lines.push('By Referring Doctor');
+    lines.push('Doctor,Orders');
+    this.summary.byDoctor.forEach((d: any) => lines.push(`"${d.doctor_name}",${d.count}`));
+
+    const csv = lines.join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `analytics-${this.fromDate}-to-${this.toDate}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
 }

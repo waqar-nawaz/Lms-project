@@ -3,6 +3,8 @@ import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: 'login', loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent) },
+  { path: 'forgot-password', loadComponent: () => import('./pages/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent) },
+  { path: 'reset-password/:token', loadComponent: () => import('./pages/reset-password/reset-password.component').then(m => m.ResetPasswordComponent) },
   { path: 'portal', loadComponent: () => import('./pages/patient-portal/patient-portal.component').then(m => m.PatientPortalComponent) },
   { path: 'verify/:token', loadComponent: () => import('./pages/report-verify/report-verify.component').then(m => m.ReportVerifyComponent) },
   { path: 'doctor-dashboard', loadComponent: () => import('./pages/doctor-dashboard/doctor-dashboard.component').then(m => m.DoctorDashboardComponent), canActivate: [authGuard] },
@@ -28,6 +30,7 @@ export const routes: Routes = [
       { path: 'settings/users', loadComponent: () => import('./pages/users/users.component').then(m => m.UsersComponent) },
       { path: 'settings/audit-log', loadComponent: () => import('./pages/audit-log/audit-log.component').then(m => m.AuditLogComponent) },
       { path: 'settings/branches', loadComponent: () => import('./pages/branches/branches.component').then(m => m.BranchesComponent) },
+      { path: 'settings/message-log', loadComponent: () => import('./pages/message-log/message-log.component').then(m => m.MessageLogComponent) },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ],
   },

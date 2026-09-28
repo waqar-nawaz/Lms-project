@@ -4,34 +4,60 @@
     <p class="subtitle">View your test reports</p>
 
     <ng-container *ngIf="!result">
-      <label>Phone Number or CNIC <span class="required-mark">*</span></label>
-      <input
-        [(ngModel)]="identifier"
-        placeholder="e.g. 03001234567"
-        [class.invalid]="submitted && !identifier"
-        (keyup.enter)="search()"
-      />
-      <div class="field-error" *ngIf="submitted && !identifier">Phone number or CNIC is required</div>
-
-      <label>Date of Birth <span class="required-mark">*</span></label>
-      <input
-        type="date"
-        [(ngModel)]="dob"
-        [class.invalid]="submitted && !dob"
-        (keyup.enter)="search()"
-      />
-      <div class="field-error" *ngIf="submitted && !dob">Date of birth is required</div>
-
-      <div class="server-error" *ngIf="error">{{ error }}</div>
-
-      <button class="btn" (click)="search()" [disabled]="loading">
-        {{ loading ? 'Searching…' : 'View My Reports' }}
-      </button>
-
-      <div class="hint">
-        Enter the phone number or CNIC on file with the lab, along with your date of birth,
-        to view and download your finalized test reports.
+      <div class="mode-toggle">
+        <button [class.active]="!useOtp" (click)="useOtp = false">Use Date of Birth</button>
+        <button [class.active]="useOtp" (click)="useOtp = true">Use SMS Code</button>
       </div>
+
+      <ng-container *ngIf="!useOtp">
+        <label>Phone Number or CNIC <span class="required-mark">*</span></label>
+        <input
+          [(ngModel)]="identifier"
+          placeholder="e.g. 03001234567"
+          [class.invalid]="submitted && !identifier"
+          (keyup.enter)="search()"
+        />
+        <div class="field-error" *ngIf="submitted && !identifier">Phone number or CNIC is required</div>
+
+        <label>Date of Birth <span class="required-mark">*</span></label>
+        <input
+          type="date"
+          [(ngModel)]="dob"
+          [class.invalid]="submitted && !dob"
+          (keyup.enter)="search()"
+        />
+        <div class="field-error" *ngIf="submitted && !dob">Date of birth is required</div>
+
+        <div class="server-error" *ngIf="error">{{ error }}</div>
+
+        <button class="btn" (click)="search()" [disabled]="loading">
+          {{ loading ? 'Searching…' : 'View My Reports' }}
+        </button>
+
+        <div class="hint">
+          Enter the phone number or CNIC on file with the lab, along with your date of birth,
+          to view and download your finalized test reports.
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="useOtp">
+        <ng-container *ngIf="!otpRequested">
+          <label>Phone Number <span class="required-mark">*</span></label>
+          <input [(ngModel)]="otpPhone" placeholder="e.g. 03001234567" [class.invalid]="otpSubmitted && !otpPhone" (keyup.enter)="requestOtp()" />
+          <div class="field-error" *ngIf="otpSubmitted && !otpPhone">Phone number is required</div>
+          <div class="server-error" *ngIf="otpError">{{ otpError }}</div>
+          <button class="btn" (click)="requestOtp()" [disabled]="otpLoading">{{ otpLoading ? 'Sending…' : 'Send Code' }}</button>
+        </ng-container>
+
+        <ng-container *ngIf="otpRequested">
+          <div class="hint" style="margin-top:0">{{ otpInfo }}</div>
+          <label>6-digit Code <span class="required-mark">*</span></label>
+          <input [(ngModel)]="otpCode" placeholder="123456" maxlength="6" [class.invalid]="otpSubmitted && !otpCode" (keyup.enter)="verifyOtp()" />
+          <div class="field-error" *ngIf="otpSubmitted && !otpCode">Enter the code you received</div>
+          <div class="server-error" *ngIf="otpError">{{ otpError }}</div>
+          <button class="btn" (click)="verifyOtp()" [disabled]="otpLoading">{{ otpLoading ? 'Verifying…' : 'Verify & View Reports' }}</button>
+        </ng-container>
+      </ng-container>
 
       <a routerLink="/login" class="staff-link">Lab staff login →</a>
     </ng-container>

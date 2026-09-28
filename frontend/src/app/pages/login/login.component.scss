@@ -95,6 +95,19 @@
   .patient-link:hover {
     text-decoration: underline;
   }
+
+  .forgot-link {
+    display: block;
+    text-align: right;
+    margin-top: 0.4rem;
+    font-size: 0.76rem;
+    color: #6b7c8f;
+    text-decoration: none;
+  }
+  .forgot-link:hover {
+    color: #145374;
+    text-decoration: underline;
+  }
 }
 
 @media (max-width: 420px) {

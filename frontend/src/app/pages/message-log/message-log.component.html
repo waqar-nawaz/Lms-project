@@ -1,0 +1,23 @@
+<h1 class="page-title">Message Log</h1>
+
+<div class="card" style="background:#fdf1d6;color:#9a6c0a;font-size:0.85rem">
+  No SMS/email gateway is configured yet, so nothing here was actually delivered —
+  this is what <strong>would</strong> have been sent (password resets, OTPs, alerts).
+  Wire up a provider (e.g. Twilio, SendGrid) to go live.
+</div>
+
+<div class="card">
+  <table class="data-table">
+    <thead><tr><th>When</th><th>Channel</th><th>To</th><th>Subject / Message</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let m of logs">
+        <td style="white-space:nowrap">{{ m.created_at | date:'short' }}</td>
+        <td><span class="badge">{{ m.channel }}</span></td>
+        <td>{{ m.recipient }}</td>
+        <td style="max-width:420px">{{ m.subject ? (m.subject + ' — ') : '' }}{{ m.body }}</td>
+        <td><span class="badge" [class.status-pending]="m.status === 'queued'" [class.status-completed]="m.status === 'sent'" [class.status-rejected]="m.status === 'failed'">{{ m.status }}</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="empty-state" *ngIf="!logs.length">No messages yet.</div>
+</div>

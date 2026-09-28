@@ -121,3 +121,28 @@
   color: #6b7c8f;
   margin-top: 0.15rem;
 }
+
+.mode-toggle {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  background: #f4f6f8;
+  padding: 0.3rem;
+  border-radius: 8px;
+}
+.mode-toggle button {
+  flex: 1;
+  padding: 0.5rem;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  color: #6b7c8f;
+}
+.mode-toggle button.active {
+  background: #fff;
+  color: #145374;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}

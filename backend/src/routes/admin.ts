@@ -114,4 +114,11 @@ router.get('/audit-logs', requireRole('super_admin'), async (_req, res) => {
   res.json(rows);
 });
 
+// Outbound SMS/email log — since no gateway is configured yet, this is how
+// staff can see what would have been sent (password resets, OTPs, alerts).
+router.get('/message-log', requireRole('super_admin'), async (_req, res) => {
+  const { rows } = await query(`SELECT * FROM message_log ORDER BY created_at DESC LIMIT 200`);
+  res.json(rows);
+});
+
 export default router;

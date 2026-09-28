@@ -10,6 +10,7 @@
     <label>Password <span class="required-mark">*</span></label>
     <input type="password" name="password" [(ngModel)]="password" [class.invalid]="submitted && !password" />
     <div class="field-error" *ngIf="submitted && !password">Password is required</div>
+    <a routerLink="/forgot-password" class="forgot-link">Forgot password?</a>
 
     <div class="error" *ngIf="error">{{ error }}</div>
 

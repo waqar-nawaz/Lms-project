@@ -137,6 +137,27 @@ export class ApiService {
   updateBranch(id: string, payload: any): Observable<any> {
     return this.http.put(`${base}/branches/${id}`, payload);
   }
+
+  // Auth: forgot/reset password
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${base}/auth/forgot-password`, { email });
+  }
+  resetPassword(token: string, password: string): Observable<any> {
+    return this.http.post(`${base}/auth/reset-password/${token}`, { password });
+  }
+
+  // Message log
+  getMessageLog(): Observable<any[]> {
+    return this.http.get<any[]>(`${base}/admin/message-log`);
+  }
+
+  // Patient portal OTP
+  requestPatientOtp(identifier: string): Observable<any> {
+    return this.http.post(`${base}/patient-portal/request-otp`, { identifier });
+  }
+  verifyPatientOtp(identifier: string, otp: string): Observable<any> {
+    return this.http.post(`${base}/patient-portal/verify-otp`, { identifier, otp });
+  }
   searchPatients(q: string): Observable<Patient[]> {
     return this.http.get<Patient[]>(`${base}/patients`, { params: q ? { q } : {} });
   }

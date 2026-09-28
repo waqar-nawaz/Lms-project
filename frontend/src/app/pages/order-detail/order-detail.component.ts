@@ -104,6 +104,42 @@ export class OrderDetailComponent implements OnInit {
     });
   }
 
+  printLabel(specimen: any) {
+    const patientName = `${this.order?.first_name || ''} ${this.order?.last_name || ''}`.trim();
+    const mrn = this.order?.mrn || '';
+    const bars = specimen.barcode
+      .split('')
+      .map((c: string) => `<div style="width:${2 + (c.charCodeAt(0) % 3)}px;background:#000;height:36px;display:inline-block;margin-right:1px;"></div>`)
+      .join('');
+
+    const html = `
+      <html>
+        <head>
+          <title>Specimen Label</title>
+          <style>
+            @page { size: 58mm 40mm; margin: 2mm; }
+            body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 4px; }
+            .barcode-bars { line-height: 0; margin: 4px 0; }
+            .barcode-text { font-family: monospace; font-size: 11px; letter-spacing: 1px; }
+            .name { font-size: 12px; font-weight: bold; margin-top: 4px; }
+            .meta { font-size: 10px; color: #333; }
+          </style>
+        </head>
+        <body onload="window.print()">
+          <div class="barcode-bars">${bars}</div>
+          <div class="barcode-text">${specimen.barcode}</div>
+          <div class="name">${patientName}</div>
+          <div class="meta">MRN: ${mrn} · ${specimen.specimen_type}</div>
+        </body>
+      </html>
+    `;
+    const win = window.open('', '_blank', 'width=300,height=300');
+    if (win) {
+      win.document.write(html);
+      win.document.close();
+    }
+  }
+
   viewHistory(resultId: string) {
     this.historyFor = resultId;
     this.api.getResultHistory(resultId).subscribe((rows) => (this.historyRows = rows));
