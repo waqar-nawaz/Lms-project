@@ -61,13 +61,33 @@
   </div>
   <div class="field-error" *ngIf="resultError">{{ resultError }}</div>
 
+  <div class="lj-wrap" *ngIf="results.length">
+    <div class="lj-title">Levey-Jennings chart (last {{ results.length }} runs)</div>
+    <svg class="lj-svg" [attr.viewBox]="'0 0 ' + chartW + ' ' + chartH" role="img" aria-label="Levey-Jennings chart">
+      <g *ngFor="let l of sdLines">
+        <line [attr.x1]="padL" [attr.x2]="chartW - padR" [attr.y1]="l.y" [attr.y2]="l.y" [attr.class]="l.cls" />
+        <text [attr.x]="padL - 6" [attr.y]="l.y + 3" class="lj-label" text-anchor="end">{{ l.label }}</text>
+        <text [attr.x]="chartW - padR" [attr.y]="l.y - 2" class="lj-val" text-anchor="end">{{ l.value }}</text>
+      </g>
+      <path [attr.d]="chartPath" class="lj-line" fill="none" />
+      <circle *ngFor="let p of chartPoints" [attr.cx]="p.x" [attr.cy]="p.y" r="4" [attr.class]="p.cls">
+        <title>{{ p.title }}</title>
+      </circle>
+    </svg>
+    <div class="lj-legend">
+      <span><i class="dot lj-pt-ok"></i> within 2SD</span>
+      <span><i class="dot lj-pt-warn"></i> 2–3SD (warning)</span>
+      <span><i class="dot lj-pt-reject"></i> beyond 3SD (reject)</span>
+    </div>
+  </div>
+
   <table class="data-table" style="margin-top:1rem" *ngIf="results.length">
     <thead><tr><th>When</th><th>Value</th><th>Z-score</th><th>Flag</th><th>By</th></tr></thead>
     <tbody>
       <tr *ngFor="let r of results">
         <td>{{ r.performed_at | date:'short' }}</td>
         <td>{{ r.value }}</td>
-        <td>{{ r.z_score ? (r.z_score | number:'1.2-2') : '-' }}</td>
+        <td>{{ r.z_score !== null && r.z_score !== undefined ? (r.z_score | number:'1.2-2') : '-' }}</td>
         <td><span class="badge" *ngIf="r.westgard_violation" [class.status-critical_low]="r.westgard_violation.includes('reject')" [class.status-low]="!r.westgard_violation.includes('reject')">{{ r.westgard_violation }}</span></td>
         <td>{{ r.performed_by_name }}</td>
       </tr>

@@ -1,0 +1,17 @@
+
+.lj-wrap { margin-top: 1rem; }
+.lj-title { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; }
+.lj-svg { width: 100%; max-width: 720px; height: auto; background: var(--surface, transparent); border: 1px solid var(--border, #ddd); border-radius: 8px; }
+.lj-svg line { stroke-width: 1; }
+.lj-mean { stroke: #16a34a; stroke-width: 1.5; }
+.lj-1sd { stroke: #94a3b8; stroke-dasharray: 2 4; }
+.lj-2sd { stroke: #f59e0b; stroke-dasharray: 5 4; }
+.lj-3sd { stroke: #dc2626; stroke-dasharray: 5 4; }
+.lj-label { font-size: 10px; fill: var(--text-muted, #64748b); }
+.lj-val { font-size: 9px; fill: var(--text-muted, #64748b); }
+.lj-line { stroke: #3b82f6; stroke-width: 1.5; }
+.lj-pt-ok { fill: #3b82f6; }
+.lj-pt-warn { fill: #f59e0b; }
+.lj-pt-reject { fill: #dc2626; }
+.lj-legend { display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.78rem; color: var(--text-muted, #64748b); margin-top: 0.4rem; }
+.lj-legend .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; }

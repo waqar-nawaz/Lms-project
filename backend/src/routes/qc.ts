@@ -75,10 +75,11 @@ router.post('/materials/:id/results', requireRole('lab_technician', 'quality_off
   if (!material) return res.status(404).json({ error: 'QC material not found' });
 
   const priorRes = await query(
-    `SELECT value FROM qc_results WHERE qc_material_id = $1 ORDER BY performed_at ASC LIMIT 11`,
+    `SELECT value FROM qc_results WHERE qc_material_id = $1 ORDER BY performed_at DESC LIMIT 11`,
     [req.params.id]
   );
-  const values = [...priorRes.rows.map((r) => Number(r.value)), Number(value)];
+  // Most recent 11 points, restored to chronological order, then the new value.
+  const values = [...priorRes.rows.map((r) => Number(r.value)).reverse(), Number(value)];
   const zScore = (Number(value) - Number(material.target_mean)) / Number(material.target_sd);
   const violation = evaluateWestgard(values, Number(material.target_mean), Number(material.target_sd));
 
@@ -94,10 +95,11 @@ router.get('/materials/:id/results', async (req, res) => {
   const { rows } = await query(
     `SELECT qr.*, u.name AS performed_by_name FROM qc_results qr
      LEFT JOIN users u ON u.id = qr.performed_by
-     WHERE qc_material_id = $1 ORDER BY performed_at ASC LIMIT 60`,
+     WHERE qc_material_id = $1 ORDER BY performed_at DESC LIMIT 60`,
     [req.params.id]
   );
-  res.json(rows);
+  // Latest 60 points, returned oldest-first so the Levey-Jennings chart reads left to right.
+  res.json(rows.reverse());
 });
 
 export default router;
