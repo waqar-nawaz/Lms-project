@@ -2,7 +2,7 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { query } from '../db/pool';
-import { signToken } from '../middleware/auth';
+import { signToken, requireAuth, requireRole, AuthedRequest } from '../middleware/auth';
 import { logAudit } from '../helpers/audit';
 import { sendMessage } from '../helpers/messaging';
 
@@ -11,6 +11,38 @@ const router = Router();
 function hashToken(token: string) {
   return crypto.createHash('sha256').update(token).digest('hex');
 }
+
+// Super admins can work inside any active branch of their organisation. Every
+// route scopes data by the branch in the JWT, so switching = re-issuing the token.
+router.post('/switch-branch', requireAuth, requireRole('super_admin'), async (req: AuthedRequest, res) => {
+  const { branchId } = req.body;
+  if (!branchId) return res.status(400).json({ error: 'branchId is required' });
+
+  const homeRes = await query(
+    `SELECT u.*, b.organization_id FROM users u JOIN branches b ON b.id = u.branch_id
+     WHERE u.id = $1 AND u.active = true`,
+    [req.user!.id]
+  );
+  const user = homeRes.rows[0];
+  if (!user) return res.status(401).json({ error: 'User not found' });
+
+  const target = await query(
+    'SELECT id, name FROM branches WHERE id = $1 AND organization_id = $2 AND active = true',
+    [branchId, user.organization_id]
+  );
+  if (!target.rows[0]) return res.status(404).json({ error: 'Branch not found or inactive' });
+
+  await logAudit({
+    userId: user.id, branchId, action: 'switch_branch', entityType: 'session',
+    oldValues: { branchId: req.user!.branchId }, newValues: { branchId },
+  });
+
+  const token = signToken({ id: user.id, role: user.role, branchId, name: user.name });
+  res.json({
+    token,
+    user: { id: user.id, name: user.name, email: user.email, role: user.role, branchId },
+  });
+});
 
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;

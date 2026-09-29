@@ -30,6 +30,16 @@ export class AuthService {
     );
   }
 
+  switchBranch(branchId: string): Observable<{ token: string; user: User }> {
+    return this.http.post<{ token: string; user: User }>(`${environment.apiUrl}/auth/switch-branch`, { branchId }).pipe(
+      tap((res) => {
+        localStorage.setItem('lms_token', res.token);
+        localStorage.setItem('lms_user', JSON.stringify(res.user));
+        this.currentUser.set(res.user);
+      })
+    );
+  }
+
   logout(): void {
     localStorage.removeItem('lms_token');
     localStorage.removeItem('lms_user');

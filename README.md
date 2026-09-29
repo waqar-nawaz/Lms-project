@@ -1,11 +1,9 @@
-# Laboratory Management System (LMS) — Scaffold
+# Laboratory Management System (LMS)
 
-A working full-stack scaffold for the Laboratory Management System spec, covering
+A full-stack Laboratory Management System, covering
 the **core patient → order → sample → result → report → billing workflow**
 end-to-end. Built with Angular, Node/Express, and PostgreSQL.
 
-This is a *foundation* to build on, not the full 33-module spec — see
-[What's implemented](#whats-implemented-vs-not) below for the honest breakdown.
 
 ## Stack
 
@@ -98,27 +96,42 @@ lms/
 └── docker-compose.yml
 ```
 
-## What's implemented vs. not
+## What's implemented
 
-**Implemented and tested end-to-end** (patient reg, orders/billing, sample
-collection & barcode accessioning, result entry with reference-range flagging,
-verification, PDF reports with public verification, invoicing/payments,
-role-based access, audit_logs table).
+**Phase 1 — core workflow:** patient registration, orders, specimens/barcodes, collection & accessioning,
+result entry with reference-range flagging, verification, PDF reports with public verification link,
+invoicing/payments, role-based access, audit logging.
 
-**Schema is ready, but there's no UI/API yet** for the rest of the spec's
-33 modules — most notably:
-- Inventory & equipment management
-- Quality control (Levey-Jennings, Westgard rules)
-- Notifications (SMS/email/WhatsApp)
-- Patient self-service portal & doctor portal
-- Multi-branch reporting/analytics dashboards
-- Panic value escalation workflow (the `critical_low`/`critical_high` flag is
-  computed and stored today, but nothing currently *acts* on it — no alert is sent)
-- HL7/instrument interfacing
+**Phase 2:** user & doctor management, audit log viewer, in-app notifications, critical-value acknowledgment workflow.
 
-The `orders`, `specimens`, `results`, `reports`, and `invoices` tables were
-built to be extended rather than replaced, so adding these modules should
-mean new tables/routes alongside the existing ones, not a rewrite.
+**Phase 3:**
+- Specimen redraw (replacement barcode for rejected specimens), test packages/panels, department CRUD, result amendment history
+- Inventory (stock, transactions, low-stock and expiry alerts) and Quality Control (Westgard rule evaluation)
+- Doctor portal (referring doctors see only their own patients' reports), multi-branch management
+- CSV export, printable specimen labels, forgot/reset password, message log, patient portal OTP login
+
+**Phase 4:**
+- Real SMS (Twilio) and email (SendGrid) delivery, with `sent`/`failed` status and error stored in the message log
+- OTP hardening: max 3 codes per number per 10 minutes, code locks after 5 wrong attempts
+- Levey-Jennings chart on the QC page (mean, ±1/2/3 SD lines, out-of-control points highlighted)
+- Branch switcher for super admins (re-issues the session token for the chosen branch; audited)
+- Fixed: QC Westgard checks and results list were using the *oldest* data points instead of the latest
+
+**Not yet implemented:** equipment/instrument management, HL7/analyzer interfacing, discounts/refunds/insurance
+billing, cross-branch comparison reports, automated tests.
+
+## Messaging configuration
+
+Set these environment variables to enable real delivery. Without them, messages are only recorded as `queued`
+in the message log (fine for development, but OTP and password-reset messages will not reach anyone).
+
+| Variable | Purpose |
+|----------|---------|
+| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` | Twilio credentials |
+| `TWILIO_FROM_NUMBER` or `TWILIO_MESSAGING_SERVICE_SID` | SMS sender |
+| `SENDGRID_API_KEY`, `EMAIL_FROM`, `EMAIL_FROM_NAME` | Email via SendGrid |
+| `DEFAULT_COUNTRY_CODE` | Prefix for local numbers starting with 0 (default `+92`) |
+| `FRONTEND_URL` | Base URL used in password-reset links |
 
 ## Extending it
 

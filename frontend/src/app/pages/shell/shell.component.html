@@ -15,6 +15,13 @@
       </button>
     </div>
 
+    <div class="branch-switcher" *ngIf="auth.hasRole('super_admin') && branches.length > 1 && !isIconOnly()">
+      <label for="branchSel">Branch</label>
+      <select id="branchSel" [disabled]="switching" [value]="auth.currentUser()?.branchId" (change)="onBranchChange($any($event.target).value)">
+        <option *ngFor="let b of branches" [value]="b.id" [selected]="b.id === auth.currentUser()?.branchId">{{ b.name }}</option>
+      </select>
+    </div>
+
     <nav>
       <a routerLink="/dashboard" routerLinkActive="active" data-label="Dashboard">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
