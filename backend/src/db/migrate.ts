@@ -18,7 +18,7 @@ async function migrate() {
   // Incremental migrations use IF NOT EXISTS throughout, so they're safe to
   // run on every deploy regardless of whether the base schema is new or
   // already existed.
-  const incrementalFiles = ['migrations_002_phase2.sql', 'migrations_003_phase3.sql'];
+  const incrementalFiles = ['migrations_002_phase2.sql', 'migrations_003_phase3.sql', 'migrations_004_gateway_security.sql'];
   for (const file of incrementalFiles) {
     const filePath = path.join(__dirname, file);
     if (fs.existsSync(filePath)) {

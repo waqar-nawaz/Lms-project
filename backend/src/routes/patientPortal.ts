@@ -46,8 +46,8 @@ router.get('/lookup', async (req, res) => {
 });
 
 // --- OTP-based verification (stronger alternative to DOB, phone numbers only) ---
-// Note: with no SMS gateway configured yet, the OTP is written to message_log
-// (staff-visible in Settings) rather than actually delivered to the patient's phone.
+// The OTP is sent via the configured SMS gateway (see helpers/messaging.ts).
+// With no gateway configured it is only recorded in message_log (dev mode).
 router.post('/request-otp', async (req, res) => {
   const { identifier } = req.body;
   const generic = { ok: true, message: 'If that number is registered, an OTP has been sent.' };
@@ -56,7 +56,15 @@ router.post('/request-otp', async (req, res) => {
   const patientRes = await query('SELECT id, branch_id FROM patients WHERE phone = $1 LIMIT 1', [identifier]);
   if (!patientRes.rows.length) return res.json(generic);
 
-  const otp = String(Math.floor(100000 + Math.random() * 900000));
+  // Throttle: max 3 codes per number per 10 minutes (stops SMS bombing / cost abuse).
+  // Same generic response so callers can't tell whether the number exists.
+  const recent = await query(
+    `SELECT COUNT(*)::int AS n FROM patient_otps WHERE identifier = $1 AND created_at > now() - interval '10 minutes'`,
+    [identifier]
+  );
+  if (recent.rows[0].n >= 3) return res.json(generic);
+
+  const otp = String(crypto.randomInt(100000, 1000000));
   await query(
     `INSERT INTO patient_otps (identifier, otp_hash, expires_at) VALUES ($1,$2, now() + interval '5 minutes')`,
     [identifier, hashOtp(otp)]
@@ -77,12 +85,27 @@ router.post('/verify-otp', async (req, res) => {
   const { identifier, otp } = req.body;
   if (!identifier || !otp) return res.status(400).json({ error: 'Phone number and OTP are required' });
 
+  // Look at the latest active code for this number first, so wrong guesses can be counted.
   const otpRes = await query(
-    `SELECT * FROM patient_otps WHERE identifier = $1 AND otp_hash = $2 AND used = false AND expires_at > now()
+    `SELECT * FROM patient_otps WHERE identifier = $1 AND used = false AND expires_at > now()
      ORDER BY created_at DESC LIMIT 1`,
-    [identifier, hashOtp(otp)]
+    [identifier]
   );
-  if (!otpRes.rows[0]) return res.status(400).json({ error: 'Invalid or expired code.' });
+  const active = otpRes.rows[0];
+  if (!active) return res.status(400).json({ error: 'Invalid or expired code.' });
+
+  if (active.attempts >= 5) {
+    await query('UPDATE patient_otps SET used = true WHERE id = $1', [active.id]);
+    return res.status(429).json({ error: 'Too many wrong attempts. Please request a new code.' });
+  }
+
+  const provided = Buffer.from(hashOtp(String(otp)));
+  const expected = Buffer.from(active.otp_hash);
+  if (provided.length !== expected.length || !crypto.timingSafeEqual(provided, expected)) {
+    await query('UPDATE patient_otps SET attempts = attempts + 1 WHERE id = $1', [active.id]);
+    return res.status(400).json({ error: 'Invalid or expired code.' });
+  }
+  otpRes.rows[0] = active;
 
   await query('UPDATE patient_otps SET used = true WHERE id = $1', [otpRes.rows[0].id]);
 
